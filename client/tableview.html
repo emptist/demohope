@@ -1,0 +1,22 @@
+<template name = "tableView">
+{{#each departments}}
+	<tr>	
+		{{> departmentRow}}
+	</tr>
+{{/each}}
+</template>
+
+<template name = "departmentRow">
+	<td>
+		{{deptname}}
+	</td>
+	<td>
+		{{keshiJiangjin}}
+	</td>
+	<td>
+		{{renjunJiangjin}}
+	</td>
+	<td>
+		{{renjunJieyu}}
+	</td>
+</template> 

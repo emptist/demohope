@@ -1,0 +1,48 @@
+<template name="main">
+<header class="navbar" >
+	<div class="navbar-inner">
+  		{{> header}}
+	</div>
+</header>
+
+<div id="main" class= "row-fluid" >
+  	{{> demo}}
+  	{{> table}}
+</div>
+</template>
+
+
+<template name="header">
+  	<h1>绩效考核与奖金分配系统</h1>
+</template>
+
+
+<template name="demo">
+	<h3>从医院到科室的奖金分配演示</h3>
+	<ol>
+		<li>
+			设置人均结余保底 
+			{{> setRenjunBaodiJieyu}} 
+		</li>
+		<li> 
+			输入科室名 在岗人数 考勤换算人数 科室考评得分 收支结余 
+			
+		</li>
+
+		<li>
+			设置科室差异系数 
+			
+		</li>
+		<li>
+			获得各科室奖金池
+		</li>
+		
+	</ol>
+	{{> basicTable}}
+</template>
+
+<template name = "setRenjunBaodiJieyu">
+	<input type="text" id="renjunBaodiJieyu" value= "1000">
+	<button id="save" class="btn btn-info"> 保存 </button>
+</template>
+
