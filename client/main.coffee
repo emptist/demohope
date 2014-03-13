@@ -10,7 +10,10 @@ getDepartments = ->
 
 
 departments = -> 
-	share.Departments.find() 
+	share.Departments.find()
+
+settings = -> 
+	share.Settings.findOne()
 
 setDeps = (deps)->
 	Session.set "deps", deps 
@@ -18,10 +21,18 @@ setDeps = (deps)->
 recalculate = share.recalculate
 
 
+Template.setRenjunBaodiJieyu.val = ->
+	settings()?.val
+
 Template.setRenjunBaodiJieyu.events
 	'click #save': (e,t)->
-		Session.set "renjunBaodiJieyu", t.find('#renjunBaodiJieyu').value.trim()
-		console.log Session.get "renjunBaodiJieyu"
+		obj = settings()
+		obj.val = 1 * t.find('#renjunBaodiJieyu').value.trim()
+		Meteor.call "baodi", obj
+		Meteor.call "recalculate"
+		###Meteor.call "baodi", obj
+ 		console.log Session.get "renjunBaodiJieyu"
+		###
 
 Template.basicTable.departments = ->
 	departments()	

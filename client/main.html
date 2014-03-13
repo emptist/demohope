@@ -24,7 +24,7 @@
 	<ol>
 		<li>
 			设置人均结余保底 
-			{{> setRenjunBaodiJieyu}} 
+			 
 		</li>
 		<li> 
 			输入科室名 在岗人数 考勤换算人数 科室考评得分 收支结余 
@@ -41,10 +41,14 @@
 		
 	</ol>
 	{{> basicTable}}
+	{{> setRenjunBaodiJieyu}}
+	
 </template>
 
 <template name = "setRenjunBaodiJieyu">
-	<input type="text" id="renjunBaodiJieyu" value= "1000">
+	bk
+	<input type="text" id="renjunBaodiJieyu" value= {{val}}>
+
 	<button id="save" class="btn btn-info"> 保存 </button>
 </template>
 
