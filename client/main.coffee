@@ -50,9 +50,11 @@ Template.basicTable.events
 
 Template.department.shangbanRenshu = -> 
 	@shangbanRenshu
-#getValue = (id) -> t.find(id).value.trim()
 
-renewdept =(e,t) -> 
+		
+	
+Template.department.events 
+	"click #save": (e,t) ->
 		@shangbanRenshu = 1 * t.find('#shangbanRenshu').value.trim() 
 		@huansuanRenshu = 1 * t.find('#huansuanRenshu').value.trim()
 		@jixiaoFenshu = 1 * t.find('#jixiaoFenshu').value.trim()
@@ -60,14 +62,16 @@ renewdept =(e,t) ->
 		@chayiXishu = 1 * t.find('#chayiXishu').value.trim()
 		Meteor.call "dep", this
 		Meteor.call "recalculate"
-		#console.log @, departments().fetch() 
-	
-Template.department.events 
-	"click #save": (e,t) ->
-		renewdept e,t
+
 	'keypress input': (e,t)->
 		if e.keyCode is 13
-			renewdept e,t
+			@shangbanRenshu = 1 * t.find('#shangbanRenshu').value.trim() 
+			@huansuanRenshu = 1 * t.find('#huansuanRenshu').value.trim()
+			@jixiaoFenshu = 1 * t.find('#jixiaoFenshu').value.trim()
+			@jieyu = 1 * t.find('#jieyu').value.trim()
+			@chayiXishu = 1 * t.find('#chayiXishu').value.trim()
+			Meteor.call "dep", this
+			Meteor.call "recalculate"
 		
 Template.tableView.departments = ->
 	departments()
