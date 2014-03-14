@@ -49,9 +49,9 @@ insertInto = (collection, obj)->
 Meteor.startup ->
 	upsertTo share.Settings, {vari:"renjunBaoDiJieyu", val: 1000}
 	for dep in [
-			{indx:1, deptname: '胸心2', shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}, 
-			{indx:2, deptname: '消化内', shangbanRenshu:10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
-			{indx:3, deptname: '肝胆内', shangbanRenshu:10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}
+			{indx:1, deptname: 'A', shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}, 
+			{indx:2, deptname: 'B', shangbanRenshu:10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
+			{indx:3, deptname: 'C', shangbanRenshu:10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}
 		]
 	 
 		Meteor.call "dep", dep
@@ -94,7 +94,8 @@ recalculate = ()->
 	for keshi in getDepartments()
 		renjunJieyu keshi
 		#huansuanRenjunJieyu keshi
-
+	
+	###	
 	#b2 计算人均结余小计, 用总奖金池除以各部门实际人数和,注意是实际人数
 	shangbanRenshuXiaoji = (geKeshi) -> 
 		xj = 0
@@ -103,6 +104,7 @@ recalculate = ()->
 		xj
 			
 	#renjunJieyuXiaoji = zongJiangjinchi() / shangbanRenshuXiaoji( getDepartments())
+	###
 
 	#c 计算人均结余加保底
 	renjunJieyuJiaBaodi = (keshi) ->
@@ -115,7 +117,7 @@ recalculate = ()->
 	for keshi in getDepartments()
 		renjunJieyuJiaBaodi keshi
 
-	#d 计算结余加保底,即各科室各自 换算人数*人均结余加保底
+	#d 计算结余加保底,即各科室各自  人数*人均结余加保底
 	jieyuJiaBaodi = (keshi) ->
 		keshi.jieyuJiaBaodi = keshi.shangbanRenshu * keshi.renjunJieyuJiaBaodi
 		dep keshi

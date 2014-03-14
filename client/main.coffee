@@ -10,7 +10,7 @@ getDepartments = ->
 
 
 departments = -> 
-	share.Departments.find()
+	share.Departments.find({}, {sort: {indx: 1}})
 
 settings = -> 
 	share.Settings.findOne()

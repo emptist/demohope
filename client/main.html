@@ -3,7 +3,7 @@
 	<div class="navbar-inner">
   		{{> header}}
 	</div>
-	<h2>从医院到科室的奖金分配演示</h2>
+	<h2>从单位到部门的奖金分配演示</h2>
 </header>
 
 <div id="main" class= "row-fluid" >
@@ -16,7 +16,7 @@
 
 <template name="header">
 <a class="brand" href="/"> HOPE </a>
-  	<h1>医院绩效考核与奖金分配系统</h1>
+  	<h1>绩效考核与奖金分配系统</h1>
 
 </template>
 
@@ -31,12 +31,12 @@
 			 
 		</li>
 		<li> 
-			输入科室名 在岗人数 考勤换算人数 科室考评得分 收支结余 
+			输入部门名 在岗人数 考勤换算人数 部门考评得分 收支结余 
 			
 		</li>
 
 		<li>
-			设置科室差异系数 
+			设置部门差异系数 
 			
 		</li>
 		<li>
@@ -48,9 +48,11 @@
 </template>
 
 <template name = "setRenjunBaodiJieyu">
+	<div>
 	<strong>人均保底上限</strong>
 	<input type="text" id="renjunBaodiJieyu" value= {{val}}>
 
-	<button id="save" class="btn btn-info"> ok </button>
+	<button id="save" class="btn btn-info"> OK </button>
+	</div>
 </template>
 
