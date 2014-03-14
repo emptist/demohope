@@ -25,15 +25,14 @@ Template.setRenjunBaodiJieyu.val = ->
 	settings()?.val
 
 Template.setRenjunBaodiJieyu.events
-	'click #save': (e,t)->
-		obj = settings()
-		obj.val = 1 * t.find('#renjunBaodiJieyu').value.trim()
-		Meteor.call "baodi", obj
-		Meteor.call "recalculate"
-		###Meteor.call "baodi", obj
- 		console.log Session.get "renjunBaodiJieyu"
-		###
-
+	'keypress input': (e,t)->
+		if e.keyCode is 13
+			obj = settings()
+			obj.val = 1 * t.find('#renjunBaodiJieyu').value.trim()
+			Meteor.call "baodi", obj
+			Meteor.call "recalculate"
+		
+		
 Template.basicTable.departments = ->
 	departments()	
 
@@ -54,7 +53,16 @@ Template.department.events
 		Meteor.call "dep", this
 		Meteor.call "recalculate"
 		#console.log @, departments().fetch() 
-
+	'keypress input': (e,t)->
+		if e.keyCode is 13
+			@shangbanRenshu = 1 * t.find('#shangbanRenshu').value.trim() 
+			@huansuanRenshu = 1 * t.find('#huansuanRenshu').value.trim()
+			@jixiaoFenshu = 1 * t.find('#jixiaoFenshu').value.trim()
+			@jieyu = 1 * t.find('#jieyu').value.trim()
+			@chayiXishu = 1 * t.find('#chayiXishu').value.trim()
+			Meteor.call "dep", this
+			Meteor.call "recalculate"
+		
 Template.tableView.departments = ->
 	departments()
 
