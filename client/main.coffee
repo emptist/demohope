@@ -46,11 +46,11 @@ Template.department.shangbanRenshu = ->
 #getValue = (id) -> t.find(id).value.trim()
 Template.department.events 
 	"click #save": (e,t) ->
-		@shangbanRenshu = t.find('#shangbanRenshu').value.trim()
-		@huansuanRenshu = t.find('#huansuanRenshu').value.trim()
-		@jixiaoFenshu = t.find('#jixiaoFenshu').value.trim()
-		@jieyu = t.find('#jieyu').value.trim()
-		@diff = t.find('#diff').value.trim()
+		@shangbanRenshu = 1 * t.find('#shangbanRenshu').value.trim() 
+		@huansuanRenshu = 1 * t.find('#huansuanRenshu').value.trim()
+		@jixiaoFenshu = 1 * t.find('#jixiaoFenshu').value.trim()
+		@jieyu = 1 * t.find('#jieyu').value.trim()
+		@chayiXishu = 1 * t.find('#chayiXishu').value.trim()
 		Meteor.call "dep", this
 		Meteor.call "recalculate"
 		#console.log @, departments().fetch() 

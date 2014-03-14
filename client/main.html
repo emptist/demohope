@@ -20,7 +20,8 @@
 
 
 <template name="demo">
-	
+	{{> basicTable}}
+	{{> setRenjunBaodiJieyu}}
 	<ol>
 		<li>
 			设置人均结余保底 
@@ -40,13 +41,12 @@
 		</li>
 		
 	</ol>
-	{{> basicTable}}
-	{{> setRenjunBaodiJieyu}}
+	
 	
 </template>
 
 <template name = "setRenjunBaodiJieyu">
-	bk
+	保底
 	<input type="text" id="renjunBaodiJieyu" value= {{val}}>
 
 	<button id="save" class="btn btn-info"> 保存 </button>

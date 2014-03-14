@@ -49,9 +49,9 @@ insertInto = (collection, obj)->
 Meteor.startup ->
 	upsertTo share.Settings, {vari:"renjunBaoDiJieyu", val: 1000}
 	for dep in [
-			{indx:1, deptname: '胸心2', shangbanRenshu: 3, huansuanRenshu: 3, jieyu: 5000, diff: 1, jixiaoFenshu: 99}, 
-			{indx:2, deptname: '消化内', shangbanRenshu:3, huansuanRenshu: 3, jieyu: 5000, diff: 1, jixiaoFenshu: 99},
-			{indx:3, deptname: '肝胆内', shangbanRenshu:3, huansuanRenshu: 3, jieyu: 5000, diff: 1, jixiaoFenshu: 99}
+			{indx:1, deptname: '胸心2', shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}, 
+			{indx:2, deptname: '消化内', shangbanRenshu:10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
+			{indx:3, deptname: '肝胆内', shangbanRenshu:10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}
 		]
 	 
 		Meteor.call "dep", dep
@@ -67,30 +67,33 @@ getDepartments = ->
 
 dep = (obj)-> 
 	upsertWithId share.Departments, obj
-	console.log obj.indx
+	#console.log obj.indx
 
 
-recalculate = (avb)->
+recalculate = ()->
 	console.log "getDepartments", getDepartments()	
 	#a 计算可奖结余即总奖金池, 为各部门可奖结余之和
 	kejiangJieyu = ->
 		p = 0
 		for keshi in getDepartments()
 			p += keshi.jieyu
-			console.log p
+			#console.log p
 		p
 	
 	zongJiangjinchi = kejiangJieyu 
-	console.log "recalculate", zongJiangjinchi()
+	console.log "***** recalculate *****", zongJiangjinchi()
 	
 	#b 计算换算人均结余
-	#b1 计算各自换算人均结余, 用科室可奖结余除以换算人数,注意换算人数
-	huansuanRenjunJieyu = (keshi)-> 
-		keshi.huansuanRenjunJieyu = keshi.jieyu / keshi.huansuanRenshu
+	#b1 计算各自换算人均结余, 用科室可奖结余除以人数,注意 人数
+	#huansuanRenjunJieyu = (keshi)-> 
+	#	keshi.huansuanRenjunJieyu = keshi.jieyu / keshi.huansuanRenshu
+	renjunJieyu = (keshi)-> 
+		keshi.renjunJieyu = keshi.jieyu / keshi.shangbanRenshu
 		dep keshi
 	
 	for keshi in getDepartments()
-		huansuanRenjunJieyu keshi
+		renjunJieyu keshi
+		#huansuanRenjunJieyu keshi
 
 	#b2 计算人均结余小计, 用总奖金池除以各部门实际人数和,注意是实际人数
 	shangbanRenshuXiaoji = (geKeshi) -> 
@@ -99,26 +102,27 @@ recalculate = (avb)->
 			xj += keshi.shangbanRenshu
 		xj
 			
-	renjunJieyuXiaoji = zongJiangjinchi() / shangbanRenshuXiaoji( getDepartments())
+	#renjunJieyuXiaoji = zongJiangjinchi() / shangbanRenshuXiaoji( getDepartments())
 
 	#c 计算人均结余加保底
-	huansuanRenjunJieyuJiaBaoDi = (keshi) ->
-		x = keshi.huansuanRenjunJieyu
+	renjunJieyuJiaBaodi = (keshi) ->
+		#x = keshi.huansuanRenjunJieyu
+		x = keshi.renjunJieyu
 		avb = -> share.Settings.findOne().val
-		keshi.huansuanRenjunJieyuJiaBaoDi = if x > avb() then x else avb()
+		keshi.renjunJieyuJiaBaodi = if x > avb() then x else avb()
 		dep keshi
 
 	for keshi in getDepartments()
-		huansuanRenjunJieyuJiaBaoDi keshi
-###
+		renjunJieyuJiaBaodi keshi
+
 	#d 计算结余加保底,即各科室各自 换算人数*人均结余加保底
 	jieyuJiaBaodi = (keshi) ->
-		keshi.jieyuJiaBaodi = keshi.huansuanRenshu * keshi.huansuanRenjunJieyuJiaBaoDi
-		dep, keshi
+		keshi.jieyuJiaBaodi = keshi.shangbanRenshu * keshi.renjunJieyuJiaBaodi
+		dep keshi
 		
 	for keshi in getDepartments()
 		jieyuJiaBaodi keshi
-	
+
 	#e 计算结余加保底和
 	jieyuJiaBaodiXiaoji = (geKeshi) ->
 		xj = 0
@@ -139,32 +143,34 @@ recalculate = (avb)->
 
 	#g 计算人均结余权重, 用 各科室各自 人均结余加保底除以人均结余加保底小计
 	renjunJieyuQuanzhong = (keshi) ->
-		keshi.renjunJieyuQuanzhong = keshi.huansuanRenjunJieyuJiaBaoDi / renjunJieyuJiaBaoDiXiaoji
-		Meteor.call "dep", keshi
+		keshi.renjunJieyuQuanzhong = keshi.renjunJieyuJiaBaodi / renjunJieyuJiaBaoDiXiaoji
+		dep keshi
 
 	for keshi in getDepartments()
 		renjunJieyuQuanzhong keshi
 	
+	
 	#h 计算科室计奖分值, 用科室 绩效分数*换算人数*人均结余权重
 	keshiJijiangFenzhi = (keshi) ->
-		keshi.keshiJijiangFenzhi = keshi.jixiaoFenshu * keshi.huansuanRenshu * keshi.renjunJieyuQuanzhong
-		Meteor.call "dep", keshi
+		keshi.keshiJijiangFenzhi = keshi.chayiXishu * keshi.jixiaoFenshu * keshi.huansuanRenshu * keshi.renjunJieyuQuanzhong
+		dep keshi
 
 	for keshi in getDepartments()
 		keshiJijiangFenzhi keshi
 
 	#i 计算科室计奖分值小计
-	keshiJijiangFenzhiXiaoji = do ()->
+	keshiJijiangFenzhiXiaoji = ->
 		xj = 0
 		for keshi in getDepartments()
-			xj += keshiJijiangFenzhi keshi
+			xj += keshi.keshiJijiangFenzhi
+		console.log xj
 		xj
 
-	
+
 	#j 计算科室领奖比例, 用科室计奖分值/科室计奖分值小计
 	keshiLingjiangBili = (keshi) ->
-		keshi.keshiLingjiangBili = keshi.keshiJijiangFenzhi / keshiJijiangFenzhiXiaoji
-		Meteor.call "dep", keshi
+		keshi.keshiLingjiangBili = keshi.keshiJijiangFenzhi / keshiJijiangFenzhiXiaoji()
+		dep keshi
 
 	for keshi in getDepartments()
 		keshiLingjiangBili keshi
@@ -173,12 +179,12 @@ recalculate = (avb)->
 	keshiJiangjin = (keshi) ->
 		keshi.keshiJiangjin = keshi.keshiLingjiangBili * zongJiangjinchi()
 		keshi.renjunJiangjin = keshi.keshiJiangjin / keshi.shangbanRenshu
-		Meteor.call "dep", keshi
+		dep keshi
 
 	for keshi in getDepartments()
 		keshiJiangjin keshi
 
-
+###	
 ###
 
 Meteor.methods
