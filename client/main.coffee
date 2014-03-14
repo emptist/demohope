@@ -24,14 +24,19 @@ recalculate = share.recalculate
 Template.setRenjunBaodiJieyu.val = ->
 	settings()?.val
 
+recalc = (e,t) ->
+	obj = settings()
+	obj.val = 1 * t.find('#renjunBaodiJieyu').value.trim()
+	Meteor.call "baodi", obj
+	Meteor.call "recalculate"
+
 Template.setRenjunBaodiJieyu.events
-	'keypress input': (e,t)->
+	'keypress input': (e,t) ->
 		if e.keyCode is 13
-			obj = settings()
-			obj.val = 1 * t.find('#renjunBaodiJieyu').value.trim()
-			Meteor.call "baodi", obj
-			Meteor.call "recalculate"
-		
+			recalc e, t
+	'click #save': (e,t) ->
+		recalc e,t
+
 		
 Template.basicTable.departments = ->
 	departments()	
