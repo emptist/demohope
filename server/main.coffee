@@ -47,11 +47,12 @@ insertInto = (collection, obj)->
 
 	
 Meteor.startup ->
-	upsertTo share.Settings, {vari:"renjunBaoDiJieyu", val: 1000}
+	upsertTo share.Settings, {vari:"renjunBaoDiJieyu", val: 0.5, ratio: 0.3}
 	for dep in [
 			{indx:1, deptname: 'A', shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}, 
-			{indx:2, deptname: 'B', shangbanRenshu:10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
-			{indx:3, deptname: 'C', shangbanRenshu:10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}
+			{indx:2, deptname: 'B', shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
+			{indx:3, deptname: 'C', shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
+			{indx:4, deptname: 'D', shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}
 		]
 	 
 		Meteor.call "dep", dep
@@ -73,14 +74,16 @@ dep = (obj)->
 recalculate = ()->
 	console.log "getDepartments", getDepartments()	
 	#a 计算可奖结余即总奖金池, 为各部门可奖结余之和
+	bdBi = share.Settings.findOne().val
+	fjBi = share.Settings.findOne().ratio
+	
 	kejiangJieyu = ->
 		p = 0
 		for keshi in getDepartments()
 			p += keshi.jieyu
 			#console.log p
-		p
-	
-	zongJiangjinchi = kejiangJieyu 
+		p 
+	zongJiangjinchi = kejiangJieyu  
 	console.log "***** recalculate *****", zongJiangjinchi()
 	
 	#b 计算换算人均结余
@@ -95,7 +98,7 @@ recalculate = ()->
 		renjunJieyu keshi
 		#huansuanRenjunJieyu keshi
 	
-	###	
+		
 	#b2 计算人均结余小计, 用总奖金池除以各部门实际人数和,注意是实际人数
 	shangbanRenshuXiaoji = (geKeshi) -> 
 		xj = 0
@@ -103,15 +106,24 @@ recalculate = ()->
 			xj += keshi.shangbanRenshu
 		xj
 			
-	#renjunJieyuXiaoji = zongJiangjinchi() / shangbanRenshuXiaoji( getDepartments())
-	###
-
+	renjunJieyuXiaoji = zongJiangjinchi() / shangbanRenshuXiaoji( getDepartments())
+	
 	#c 计算人均结余加保底
+	avb = -> bdBi * renjunJieyuXiaoji #/ fjBi
+	
+	cnt = 0
+	for keshi in getDepartments() when keshi.renjunJieyu < avb()
+		cnt += 1
+	#cnt = 1 <-- if don't want to change the value of cnt
+
 	renjunJieyuJiaBaodi = (keshi) ->
 		#x = keshi.huansuanRenjunJieyu
 		x = keshi.renjunJieyu
-		avb = -> share.Settings.findOne().val
-		keshi.renjunJieyuJiaBaodi = if x > avb() then x else avb()
+		
+		if x > avb() 
+			keshi.renjunJieyuJiaBaodi =	x
+		else 
+			keshi.renjunJieyuJiaBaodi = avb() * cnt
 		dep keshi
 
 	for keshi in getDepartments()
@@ -142,7 +154,7 @@ recalculate = ()->
 		xj
 		
 	renjunJieyuJiaBaoDiXiaoji = jieyuJiaBaodiHe / huansuanRenshuXiaoji(getDepartments())
-
+	
 	#g 计算人均结余权重, 用 各科室各自 人均结余加保底除以人均结余加保底小计
 	renjunJieyuQuanzhong = (keshi) ->
 		keshi.renjunJieyuQuanzhong = keshi.renjunJieyuJiaBaodi / renjunJieyuJiaBaoDiXiaoji
@@ -179,7 +191,7 @@ recalculate = ()->
 
 	#k 计算科室奖金, 用 科室领奖比例*总奖金池
 	keshiJiangjin = (keshi) ->
-		keshi.keshiJiangjin = keshi.keshiLingjiangBili * zongJiangjinchi()
+		keshi.keshiJiangjin = keshi.keshiLingjiangBili * zongJiangjinchi() * fjBi
 		keshi.renjunJiangjin = keshi.keshiJiangjin / keshi.shangbanRenshu
 		dep keshi
 
