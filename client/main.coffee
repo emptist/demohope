@@ -28,14 +28,14 @@ Template.setRenjunBaodiJieyu.ratio = ->
 
 recalc = (e,t) ->
 	obj = settings()
-	obj.val = 1 * t.find('#renjunBaodiJieyu').value.trim()
-	obj.ratio = 1 * t.find('#jiangjinBili').value.trim()
+	obj.val = Math.max 0.01, 1 * t.find('#renjunBaodiJieyu').value.trim()
+	obj.ratio = Math.min 1, 1 * t.find('#jiangjinBili').value.trim()
 	Meteor.call "baodi", obj
 	Meteor.call "recalculate"
 
 Template.setRenjunBaodiJieyu.events
 	'keypress input': (e,t) ->
-		if e.keyCode is 13
+		if e.keyCode in [9, 13]
 			recalc e, t
 	'click #save': (e,t) ->
 		recalc e,t
@@ -44,34 +44,37 @@ Template.setRenjunBaodiJieyu.events
 Template.basicTable.departments = ->
 	departments()	
 
+###
 Template.basicTable.events 
 	'click #recalc': (e, t) ->
 		recalculate()
+###
 
 Template.department.shangbanRenshu = -> 
 	@shangbanRenshu
 
 		
-	
+# !! NOTE: NEVER try again to refactor the following work since the magic @ and this !!
 Template.department.events 
 	"click #save": (e,t) ->
 		@shangbanRenshu = 1 * t.find('#shangbanRenshu').value.trim() 
 		@huansuanRenshu = 1 * t.find('#huansuanRenshu').value.trim()
-		@jixiaoFenshu = 1 * t.find('#jixiaoFenshu').value.trim()
+		@jixiaoFenshu = Math.max 0, 1 * t.find('#jixiaoFenshu').value.trim() #could be 0
 		@jieyu = 1 * t.find('#jieyu').value.trim()
-		@chayiXishu = 1 * t.find('#chayiXishu').value.trim()
+		@chayiXishu = Math.max 0.01, 1 * t.find('#chayiXishu').value.trim()
 		Meteor.call "dep", this
 		Meteor.call "recalculate"
-
-	'keypress input': (e,t)->
-		if e.keyCode is 13
+	
+	'keypress input': (e,t) ->
+		if e.keyCode in [9, 13] #is 13
 			@shangbanRenshu = 1 * t.find('#shangbanRenshu').value.trim() 
 			@huansuanRenshu = 1 * t.find('#huansuanRenshu').value.trim()
-			@jixiaoFenshu = 1 * t.find('#jixiaoFenshu').value.trim()
+			@jixiaoFenshu = Math.max 0, 1 * t.find('#jixiaoFenshu').value.trim() #could be 0
 			@jieyu = 1 * t.find('#jieyu').value.trim()
-			@chayiXishu = 1 * t.find('#chayiXishu').value.trim()
+			@chayiXishu = Math.max 0.01, 1 * t.find('#chayiXishu').value.trim()
 			Meteor.call "dep", this
 			Meteor.call "recalculate"
+			
 		
 Template.tableView.departments = ->
 	departments()

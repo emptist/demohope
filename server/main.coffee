@@ -71,7 +71,7 @@ dep = (obj)->
 	#console.log obj.indx
 
 
-recalculate = ()->
+recalculate = ->
 	console.log "getDepartments", getDepartments()	
 	#a 计算可奖结余即总奖金池, 为各部门可奖结余之和
 	bdBi = share.Settings.findOne().val
@@ -82,7 +82,8 @@ recalculate = ()->
 		for keshi in getDepartments()
 			p += keshi.jieyu
 			#console.log p
-		p 
+		Math.max 0, p
+
 	zongJiangjinchi = kejiangJieyu  
 	console.log "***** recalculate *****", zongJiangjinchi()
 	
@@ -202,7 +203,7 @@ recalculate = ()->
 ###
 
 Meteor.methods
-	dep: (obj)-> upsertTo share.Departments, obj
-	depId: (id, obj)-> upsertToId share.Departments, id, obj
 	baodi: (obj)-> upsertWithId share.Settings, obj
+	dep: (obj)-> upsertTo share.Departments, obj
+	#depId: (id, obj)-> upsertToId share.Departments, id, obj
 	recalculate: recalculate
