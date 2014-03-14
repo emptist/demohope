@@ -34,7 +34,7 @@ recalc = (e,t) ->
 	Meteor.call "recalculate"
 
 Template.setRenjunBaodiJieyu.events
-	'keypress input': (e,t) ->
+	'keydown input': (e,t) ->
 		if e.keyCode in [9, 13]
 			recalc e, t
 	'click #save': (e,t) ->
@@ -65,7 +65,7 @@ Template.department.events
 		Meteor.call "dep", this
 		Meteor.call "recalculate"
 	
-	'keypress input': (e,t) ->
+	'keydown input': (e,t) ->
 		if e.keyCode in [9, 13] #is 13
 			@shangbanRenshu = 1 * t.find('#shangbanRenshu').value.trim() 
 			@huansuanRenshu = 1 * t.find('#huansuanRenshu').value.trim()
