@@ -111,10 +111,10 @@ recalculate = ()->
 	#c 计算人均结余加保底
 	avb = -> bdBi * renjunJieyuXiaoji #/ fjBi
 	
-	cnt = 0
+	cnt = 0 # 用于在亏损部门多的情况下,调节保底金额
 	for keshi in getDepartments() when keshi.renjunJieyu < avb()
 		cnt += 1
-	#cnt = 1 <-- if don't want to change the value of cnt
+	#cnt = 1 #<-- 调整保底金额开关,去掉此处注释,并取1即可随着亏损科室增加,保底奖金快速减少
 
 	renjunJieyuJiaBaodi = (keshi) ->
 		#x = keshi.huansuanRenjunJieyu
