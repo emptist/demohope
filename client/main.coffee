@@ -35,15 +35,7 @@ Template.basicTable.departments = ->
 		
 # !! NOTE: NEVER try again to refactor the following work since the magic @ and this !!
 Template.department.events 
-	"click #save": (e,t) ->
-		@shangbanRenshu = 1 * t.find('#shangbanRenshu').value.trim() 
-		@huansuanRenshu = 1 * t.find('#huansuanRenshu').value.trim()
-		@jixiaoFenshu = Math.max 0, 1 * t.find('#jixiaoFenshu').value.trim() #could be 0
-		@jieyu = 1 * t.find('#jieyu').value.trim()
-		@chayiXishu = Math.max 0.01, 1 * t.find('#chayiXishu').value.trim()
-		Meteor.call "dep", this
-		Meteor.call "recalculate"
-	
+
 	'keydown input': (e,t) ->
 		if e.keyCode in [9, 13] #is 13
 			@shangbanRenshu = 1 * t.find('#shangbanRenshu').value.trim() 
@@ -53,7 +45,9 @@ Template.department.events
 			@chayiXishu = Math.max 0.01, 1 * t.find('#chayiXishu').value.trim()
 			Meteor.call "dep", this
 			Meteor.call "recalculate"
-			
+###
+	"click #save": (e,t) ->
+###			
 		
 Template.tableView.departments = ->
 	departments()
