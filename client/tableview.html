@@ -1,11 +1,35 @@
 <template name = "tableView">
-{{#each departments}}
-	<tr>	
-		{{> departmentRow}}
-	</tr>
-{{/each}}
+	<table class="table table-hover table-condensed">
+		<thead>
+			{{> tableheadRow}}
+		</thead>
+		<tbody>
+			{{#each departments}}
+				<tr>	
+					{{> departmentRow}}
+				</tr>
+			{{/each}}
+
+		</tbody>
+	</table>
 </template>
 
+<template name = "tableheadRow">
+	<tr>
+		<th>
+			部门
+		</th>
+		<th>
+			奖金池
+		</th>
+		<th>
+			人均奖金
+		</th>
+		<th>
+			部门领奖比例
+		</th>
+	</tr>
+</template>
 <template name = "departmentRow">
 	<td>
 		{{deptname}}
@@ -16,12 +40,6 @@
 	<td>
 		{{renjunJiangjin}}
 	</td>
-	<!-- td>
-		{{renjunJieyuJiaBaodi}}
-	</td -->
-	<!--td>
-		{{keshiJijiangFenzhi}}
-	</td-->
 	<td>
 		{{keshiLingjiangBili}}
 	</td>

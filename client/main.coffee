@@ -1,11 +1,3 @@
-###
-getDeps = ->
-	Session.get "deps" 
-
-getDepartments = ->
-	getDeps().departments
-###
-
 #Meteor.subscribe "depsChannel"
 
 
@@ -14,9 +6,6 @@ departments = ->
 
 settings = -> 
 	share.Settings.findOne()
-
-setDeps = (deps)->
-	Session.set "deps", deps 
 
 recalculate = share.recalculate
 
@@ -28,11 +17,10 @@ Template.setRenjunBaodiJieyu.ratio = ->
 
 recalc = (e,t) ->
 	obj = settings()
-	obj.val = Math.max 0.01, 1 * t.find('#renjunBaodiJieyu').value.trim()
-	obj.ratio = Math.min 1, 1 * t.find('#jiangjinBili').value.trim()
+	obj.val = Math.max 0.01, (Math.min 0.8,  1 * t.find('#renjunBaodiJieyu').value.trim())
+	obj.ratio = Math.max 0.01, (Math.min 1, 1 * t.find('#jiangjinBili').value.trim())
 	Meteor.call "baodi", obj
 	Meteor.call "recalculate"
-
 Template.setRenjunBaodiJieyu.events
 	'keydown input': (e,t) ->
 		if e.keyCode in [9, 13]
@@ -43,15 +31,6 @@ Template.setRenjunBaodiJieyu.events
 		
 Template.basicTable.departments = ->
 	departments()	
-
-###
-Template.basicTable.events 
-	'click #recalc': (e, t) ->
-		recalculate()
-###
-
-Template.department.shangbanRenshu = -> 
-	@shangbanRenshu
 
 		
 # !! NOTE: NEVER try again to refactor the following work since the magic @ and this !!
