@@ -115,7 +115,7 @@ recalculate = -> if share.adminLoggedIn
 		else
 			cnt = 0 
 			for keshi in getDepartments() when keshi.renjunJieyu < avb()
-				cnt += 1
+				cnt += 0.7
 
 		renjunJieyuJiaBaodi = (keshi) ->
 			#x = keshi.huansuanRenjunJieyu
