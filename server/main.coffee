@@ -48,7 +48,7 @@ insertInto = (collection, obj)->
 #可改进为保存Organization,其中有Departments或Teams:
 #Departments可先制作Objects	
 Meteor.startup ->
-	upsertTo share.Settings, {indx:1, vari:"renjunBaoDiJieyu", val: 0.5, ratio: 0.3}
+	upsertTo share.Settings, {indx:1, vari:"renjunBaoDiJieyu", val: 0.5, ratio: 0.3, ZIchanfa:true}
 	for dep in [
 			{indx:1, deptname: 'A', shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}, 
 			{indx:2, deptname: 'B', shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
@@ -64,10 +64,13 @@ Meteor.startup ->
 
 #以下算法可以改进为 OOP 将部分functions放到部门Object内,可能更清晰
 recalculate = -> if share.adminLoggedIn
+	settings = share.Settings.findOne()
 	#保底奖金比例之上限,为1时约为人均奖金数额.已经在client/main.coffee中设置不得大于0.8.否则保底会高于正常奖金
-	baodibiLi = share.Settings.findOne().val 
+	baodibiLi = settings.val 
 	#从单位结余中提取多少比例发放奖金
-	FAjiangbiLi = share.Settings.findOne().ratio 
+	FAjiangbiLi = settings.ratio
+	#採用資產法?
+	ZIchanfa = settings.ZIchanfa
 
 	getDepartments = ->
 		share.Departments.find().fetch() 
