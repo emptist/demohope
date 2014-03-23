@@ -14,11 +14,15 @@ Template.setRenjunBaodiJieyu.val = ->
 	settings()?.val
 Template.setRenjunBaodiJieyu.ratio = ->
 	settings()?.ratio
+Template.setRenjunBaodiJieyu.ZIchanfa = ->
+	settings()?.ZIchanfa
+
 
 recalc = (e,t) ->
 	obj = settings()
 	obj.val = Math.max 0.01, (Math.min 0.8,  1 * t.find('#renjunBaodiJieyu').value.trim())
 	obj.ratio = Math.max 0.01, (Math.min 1, 1 * t.find('#jiangjinBili').value.trim())
+	obj.ZIchanfa = t.find('#ZIchanfa').value
 	Meteor.call "baodi", obj
 	Meteor.call "recalculate"
 Template.setRenjunBaodiJieyu.events
