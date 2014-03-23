@@ -89,6 +89,7 @@ recalculate = -> if share.adminLoggedIn
 	do ->
 		renjunJieyu = (keshi)-> 
 			keshi.renjunJieyu = keshi.jieyu / keshi.shangbanRenshu
+			keshi.renjunGudingzichan = keshi.gudingzichan / keshi.shangbanRenshu
 			dep keshi
 		
 		for keshi in getDepartments()
@@ -125,6 +126,8 @@ recalculate = -> if share.adminLoggedIn
 				keshi.renjunJieyuJiaBaodi =	x
 			else 
 				keshi.renjunJieyuJiaBaodi = avb() * cnt
+			
+			keshi.renjunYingyunXiaolv = keshi.renjunJieyuJiaBaodi / keshi.gudingzichan
 			dep keshi
 
 		for keshi in getDepartments()
@@ -163,6 +166,7 @@ recalculate = -> if share.adminLoggedIn
 	do ->
 		renjunJieyuQuanzhong = (keshi) ->
 			keshi.renjunJieyuQuanzhong = keshi.renjunJieyuJiaBaodi / renjunJieyuJiaBaoDiXiaoji()
+
 			dep keshi
 
 		for keshi in getDepartments()
