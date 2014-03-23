@@ -167,7 +167,7 @@ recalculate = -> if share.adminLoggedIn
 
 		for keshi in getDepartments()
 			renjunJieyuQuanzhong keshi
-	
+	#明天将此改为人均资产运营指数
 	
 	#h 计算科室计奖分值, 用科室 绩效分数 * 换算人数 * 人均结余权重 * 科室差异系数
 	do ->
