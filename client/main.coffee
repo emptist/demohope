@@ -42,6 +42,7 @@ Template.department.events
 			@huansuanRenshu = 1 * t.find('#huansuanRenshu').value.trim()
 			@jixiaoFenshu = Math.max 0, 1 * t.find('#jixiaoFenshu').value.trim() #could be 0
 			@jieyu = 1 * t.find('#jieyu').value.trim()
+			@gudingzichan = 1 * t.find('#gudingzichan').value.trim()
 			@chayiXishu = Math.max 0.01, 1 * t.find('#chayiXishu').value.trim()
 			Meteor.call "dep", this
 			Meteor.call "recalculate"
