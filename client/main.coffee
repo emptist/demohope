@@ -29,7 +29,7 @@ Template.setRenjunBaodiJieyu.events
 	'keydown input': (e,t) ->
 		if e.keyCode in [9, 13]
 			recalc e, t
-	'click #save': (e,t) ->
+	'click #ZIchanfa': (e,t) ->
 		recalc e,t
 
 		
