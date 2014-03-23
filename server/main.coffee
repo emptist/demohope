@@ -65,9 +65,9 @@ Meteor.startup ->
 #以下算法可以改进为 OOP 将部分functions放到部门Object内,可能更清晰
 recalculate = -> if share.adminLoggedIn
 	settings = share.Settings.findOne()
-	#保底奖金比例之上限,为1时约为人均奖金数额.已经在client/main.coffee中设置不得大于0.8.否则保底会高于正常奖金
+	#保底绩效分配比例之上限,为1时约为人均绩效分配数额.已经在client/main.coffee中设置不得大于0.8.否则保底会高于正常绩效分配
 	baodibiLi = settings.val 
-	#从单位结余中提取多少比例发放奖金
+	#从单位结余中提取多少比例发放绩效分配
 	FAjiangbiLi = settings.ratio
 	#採用資產法 此checkbox似乎没有正常工作原因不知
 	ZIchanfa = true #settings.ZIchanfa
@@ -79,7 +79,7 @@ recalculate = -> if share.adminLoggedIn
 	dep = (obj)->
 		upsertWithId share.Departments, obj
 
-	#a 计算可奖结余即总奖金池, 为各部门可奖结余之和
+	#a 计算可奖结余即总绩效分配池, 为各部门可奖结余之和
 	#- --> 對於採用資產運營效率算法的則計算科室資產運營效率
 	#- --> 無需計算人均資產運營效率,原因是人均收支結餘/人均固定資產,分子分母抵消
 	#- --> 但由於要對虧損科室設置保底,故需計算科室資產運營效率加保底
@@ -104,7 +104,7 @@ recalculate = -> if share.adminLoggedIn
 			renjunJieyu KEShi
 	
 		
-	#b2 计算人均结余小计, 用总奖金池除以各部门实际人数和,注意是实际人数
+	#b2 计算人均结余小计, 用总绩效分配池除以各部门实际人数和,注意是实际人数
 	rENJUNjIEyUxiaoJi = do ->
 		ShangBANrENShuxiaoJi = (GeKEShi) -> 
 			xj = 0
@@ -213,7 +213,7 @@ recalculate = -> if share.adminLoggedIn
 		for KEShi in getDepartments()
 			keshiLingjiangBili KEShi
 
-	#k 计算科室奖金, 用 科室领奖比例*总奖金池
+	#k 计算科室绩效分配, 用 科室领奖比例*总绩效分配池
 	do ->
 		keshiJiangjin = (KEShi) ->
 			KEShi.keshiJiangjin = KEShi.keshiLingjiangBili * zongjiangJINchI() * FAjiangbiLi
