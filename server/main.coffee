@@ -48,7 +48,7 @@ insertInto = (collection, obj)->
 #可改进为保存Organization,其中有Departments或Teams:
 #Departments可先制作Objects	
 Meteor.startup ->
-	upsertTo share.Settings, {indx:1, vari:"renjunBaoDiJieyu", val: 0.5, ratio: 0.3, ZIchanfa:true}
+	upsertTo share.Settings, {indx:1, vari:"renjunBaoDiJieyu", val: 0.5, ratio: 0.3, ZIchanfa: true}
 	for dep in [
 			{indx:1, deptname: 'A', gudingzichan: 1, shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}, 
 			{indx:2, deptname: 'B', gudingzichan: 1, shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
@@ -69,8 +69,8 @@ recalculate = -> if share.adminLoggedIn
 	baodibiLi = settings.val 
 	#从单位结余中提取多少比例发放奖金
 	FAjiangbiLi = settings.ratio
-	#採用資產法?
-	ZIchanfa = settings.ZIchanfa
+	#採用資產法 此checkbox似乎没有正常工作原因不知
+	ZIchanfa = true #settings.ZIchanfa
 
 	getDepartments = ->
 		share.Departments.find().fetch() 
@@ -83,11 +83,11 @@ recalculate = -> if share.adminLoggedIn
 	#- --> 對於採用資產運營效率算法的則計算科室資產運營效率
 	#- --> 無需計算人均資產運營效率,原因是人均收支結餘/人均固定資產,分子分母抵消
 	#- --> 但由於要對虧損科室設置保底,故需計算科室資產運營效率加保底
-	zongJiangjinchi = ->
+	zongjiangJINchI = ->
 		p = 0
-		for keshi in getDepartments()
-			keshi.YunXiao = keshi.jieyu / keshi.gudingzichan
-			p += keshi.jieyu
+		for KEShi in getDepartments()
+			KEShi.YunXiao = KEShi.jieyu / KEShi.gudingzichan
+			p += KEShi.jieyu
 		Math.max 0, p
 
 	
@@ -95,134 +95,133 @@ recalculate = -> if share.adminLoggedIn
 	
 	#b1 计算各自人均结余, 用科室可奖结余除以人数,注意 人数
 	do ->
-		renjunJieyu = (keshi)-> 
-			keshi.renjunJieyu = keshi.jieyu / keshi.shangbanRenshu
-			keshi.renjunGudingzichan = keshi.gudingzichan / keshi.shangbanRenshu
-			dep keshi
+		renjunJieyu = (KEShi)-> 
+			KEShi.renjunJieyu = KEShi.jieyu / KEShi.shangbanRenshu
+			KEShi.renjunGudingzichan = KEShi.gudingzichan / KEShi.shangbanRenshu
+			dep KEShi
 		
-		for keshi in getDepartments()
-			renjunJieyu keshi
+		for KEShi in getDepartments()
+			renjunJieyu KEShi
 	
 		
 	#b2 计算人均结余小计, 用总奖金池除以各部门实际人数和,注意是实际人数
-	renjunJieyuXiaoji = do ->
-		shangbanRenshuXiaoji = (geKeshi) -> 
+	rENJUNjIEyUxiaoJi = do ->
+		ShangBANrENShuxiaoJi = (GeKEShi) -> 
 			xj = 0
-			for keshi in geKeshi
-				xj += keshi.shangbanRenshu
+			for KEShi in GeKEShi
+				xj += KEShi.shangbanRenshu
 			xj
-		zongJiangjinchi() / shangbanRenshuXiaoji( getDepartments())
+		zongjiangJINchI() / ShangBANrENShuxiaoJi( getDepartments())
 			
 
 	#c 计算人均结余加保底
 	do ->
-		avb = -> baodibiLi * renjunJieyuXiaoji 
+		avb = -> baodibiLi * rENJUNjIEyUxiaoJi 
 		
 		rejust = true #<-- 调整保底金额开关
 		if rejust is false
 			cnt = 1 # 用于在亏损部门多的情况下,调节保底金额
 		else
 			cnt = 0.3 # 初始時cnt取0.3 是配合增加一個科室加0.7,亦即之後逐步減少補貼 
-			for keshi in getDepartments() when keshi.renjunJieyu < avb()
+			for KEShi in getDepartments() when KEShi.renjunJieyu < avb()
 				cnt += 0.7
 
-		renjunJieyuJiaBaodi = (keshi) ->
-			#x = keshi.huansuanRenjunJieyu
-			x = keshi.renjunJieyu
+		renjunJieyuJiaBaodi = (KEShi) ->
+			#x = KEShi.huansuanRenjunJieyu
+			x = KEShi.renjunJieyu
 			
 			if x > avb() 
-				keshi.renjunJieyuJiaBaodi =	x
+				KEShi.renjunJieyuJiaBaodi =	x
 			else 
-				keshi.renjunJieyuJiaBaodi = avb() * cnt
+				KEShi.renjunJieyuJiaBaodi = avb() * cnt
 			
-			keshi.renjunYingyunXiaolv = keshi.renjunJieyuJiaBaodi / keshi.gudingzichan
-			dep keshi
+			dep KEShi
 
-		for keshi in getDepartments()
-			renjunJieyuJiaBaodi keshi
+		for KEShi in getDepartments()
+			renjunJieyuJiaBaodi KEShi
 
 	#d 计算结余加保底,即各科室各自  人数*人均结余加保底
 	#- --> 對於資產效率指標法,虧損科室設置保底故,須計算科室資產運營效率加保底
 	do ->
-		jieyuJiaBaodi = (keshi) ->
-			keshi.jieyuJiaBaodi = keshi.shangbanRenshu * keshi.renjunJieyuJiaBaodi
-			keshi.YunXiaoJIAbaodi = keshi.jieyuJiaBaodi / keshi.gudingzichan
-			dep keshi
+		jieyuJiaBaodi = (KEShi) ->
+			KEShi.jieyuJiaBaodi = KEShi.shangbanRenshu * KEShi.renjunJieyuJiaBaodi
+			KEShi.YunXiaoJIAbaodi = KEShi.jieyuJiaBaodi / KEShi.gudingzichan
+			dep KEShi
 			
-		for keshi in getDepartments()
-			jieyuJiaBaodi keshi
+		for KEShi in getDepartments()
+			jieyuJiaBaodi KEShi
 
 	#e 计算结余加保底和
 	jieyuJiaBaodiHe = do ->
-		jieyuJiaBaodiXiaoji = (geKeshi) ->
+		jieyuJiaBaodiXiaoji = (GeKEShi) ->
 			xj = 0
-			for keshi in geKeshi
-				xj += keshi.jieyuJiaBaodi
+			for KEShi in GeKEShi
+				xj += KEShi.jieyuJiaBaodi
 			xj
 
 		jieyuJiaBaodiXiaoji getDepartments()	
 	
 	#f 计算人均结余加保底小计, 用 结余加保底和除以换算人数小计
 	renjunJieyuJiaBaoDiXiaoji = ->
-		huansuanRenshuXiaoji = (geKeshi) ->
+		huansuanRenshuXiaoji = (GeKEShi) ->
 			xj = 0
-			for keshi in geKeshi 
-				xj += keshi.huansuanRenshu
+			for KEShi in GeKEShi 
+				xj += KEShi.huansuanRenshu
 			xj
 			
 		jieyuJiaBaodiHe / huansuanRenshuXiaoji(getDepartments())
 	
 	#g 计算人均结余权重, 用 各科室各自 人均结余加保底除以人均结余加保底小计
 	do ->
-		renjunJieyuQuanzhong = (keshi) ->
-			keshi.renjunJieyuQuanzhong = keshi.renjunJieyuJiaBaodi / renjunJieyuJiaBaoDiXiaoji()
+		renjunJieyuQuanzhong = (KEShi) ->
+			KEShi.renjunJieyuQuanzhong = KEShi.renjunJieyuJiaBaodi / renjunJieyuJiaBaoDiXiaoji()
 
-			dep keshi
+			dep KEShi
 
-		for keshi in getDepartments()
-			renjunJieyuQuanzhong keshi
+		for KEShi in getDepartments()
+			renjunJieyuQuanzhong KEShi
 	#明天将此改为人均资产运营指数
 	
 	#h 计算科室计奖分值, 
 	#h1 對於採用人均結餘權重者,用科室 绩效分数 * 换算人数 * 人均结余权重 * 科室差异系数
 	#h2 對於採用資產運營效率者,用科室 绩效分数 * 换算人数 * 資產效率加保底 * 科室差异系数
 	do ->
-		keshiJijiangFenzhi = (keshi) ->
-			qUANZhong = if ZIchanfa then keshi.YunXiaoJIAbaodi else keshi.renjunJieyuQuanzhong
-			keshi.keshiJijiangFenzhi = keshi.chayiXishu * keshi.jixiaoFenshu * 
-				keshi.huansuanRenshu * qUANZhong
+		keshiJijiangFenzhi = (KEShi) ->
+			qUANZhong = if ZIchanfa then KEShi.YunXiaoJIAbaodi else KEShi.renjunJieyuQuanzhong
+			KEShi.keshiJijiangFenzhi = KEShi.chayiXishu * KEShi.jixiaoFenshu * 
+				KEShi.huansuanRenshu * qUANZhong
 
-			dep keshi
+			dep KEShi
 
-		for keshi in getDepartments()
-			keshiJijiangFenzhi keshi
+		for KEShi in getDepartments()
+			keshiJijiangFenzhi KEShi
 
 	#i 计算科室计奖分值小计
 	keshiJijiangFenzhiXiaoji = ->
 		xj = 0
-		for keshi in getDepartments()
-			xj += keshi.keshiJijiangFenzhi
+		for KEShi in getDepartments()
+			xj += KEShi.keshiJijiangFenzhi
 		xj
 
 
 	#j 计算科室领奖比例, 用科室计奖分值/科室计奖分值小计
 	do ->
-		keshiLingjiangBili = (keshi) ->
-			keshi.keshiLingjiangBili = keshi.keshiJijiangFenzhi / keshiJijiangFenzhiXiaoji()
-			dep keshi
+		keshiLingjiangBili = (KEShi) ->
+			KEShi.keshiLingjiangBili = KEShi.keshiJijiangFenzhi / keshiJijiangFenzhiXiaoji()
+			dep KEShi
 
-		for keshi in getDepartments()
-			keshiLingjiangBili keshi
+		for KEShi in getDepartments()
+			keshiLingjiangBili KEShi
 
 	#k 计算科室奖金, 用 科室领奖比例*总奖金池
 	do ->
-		keshiJiangjin = (keshi) ->
-			keshi.keshiJiangjin = keshi.keshiLingjiangBili * zongJiangjinchi() * FAjiangbiLi
-			keshi.renjunJiangjin = keshi.keshiJiangjin / keshi.shangbanRenshu
-			dep keshi
+		keshiJiangjin = (KEShi) ->
+			KEShi.keshiJiangjin = KEShi.keshiLingjiangBili * zongjiangJINchI() * FAjiangbiLi
+			KEShi.renjunJiangjin = KEShi.keshiJiangjin / KEShi.shangbanRenshu
+			dep KEShi
 
-		for keshi in getDepartments()
-			keshiJiangjin keshi
+		for KEShi in getDepartments()
+			keshiJiangjin KEShi
 
 
 
