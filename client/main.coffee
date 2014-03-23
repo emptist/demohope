@@ -14,24 +14,26 @@ Template.setRenjunBaodiJieyu.val = ->
 	settings()?.val
 Template.setRenjunBaodiJieyu.ratio = ->
 	settings()?.ratio
-Template.setRenjunBaodiJieyu.ZIchanfa = ->
-	settings()?.ZIchanfa
+#Template.setRenjunBaodiJieyu.ZIchanfa = ->
+#	settings()?.ZIchanfa
 
 
 recalc = (e,t) ->
 	obj = settings()
 	obj.val = Math.max 0.01, (Math.min 0.8,  1 * t.find('#renjunBaodiJieyu').value.trim())
 	obj.ratio = Math.max 0.01, (Math.min 1, 1 * t.find('#jiangjinBili').value.trim())
-	obj.ZIchanfa = t.find('#ZIchanfa').value
+	#obj.ZIchanfa = t.find('#ZIchanfa').value
 	Meteor.call "baodi", obj
 	Meteor.call "recalculate"
 Template.setRenjunBaodiJieyu.events
+	'keyup input': (e,t) ->
+		console.log this, "lost focus"
+		recalc e,t
+####
 	'keydown input': (e,t) ->
 		if e.keyCode in [9, 13]
 			recalc e, t
-	'click #ZIchanfa': (e,t) ->
-		recalc e,t
-
+####
 		
 Template.basicTable.departments = ->
 	departments()	
@@ -39,9 +41,9 @@ Template.basicTable.departments = ->
 		
 # !! NOTE: NEVER try again to refactor the following work since the magic @ and this !!
 Template.department.events 
-
-	'keydown input': (e,t) ->
-		if e.keyCode in [9, 13] #is 13
+	'keyup input': (e,t) ->
+	#'keydown input': (e,t) ->
+		if true #e.keyCode in [9, 13] #is 13
 			@shangbanRenshu = 1 * t.find('#shangbanRenshu').value.trim() 
 			@huansuanRenshu = 1 * t.find('#huansuanRenshu').value.trim()
 			@jixiaoFenshu = Math.max 0, 1 * t.find('#jixiaoFenshu').value.trim() #could be 0
