@@ -50,10 +50,10 @@ insertInto = (collection, obj)->
 Meteor.startup ->
 	upsertTo share.Settings, {indx:1, vari:"renjunBaoDiJieyu", val: 0.5, ratio: 0.3, ZIchanfa: true}
 	for dep in [
-			{indx:1, deptname: 'A', gudingzichan: 1, shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}, 
-			{indx:2, deptname: 'B', gudingzichan: 1, shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
-			{indx:3, deptname: 'C', gudingzichan: 1, shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
-			{indx:4, deptname: 'D', gudingzichan: 1, shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}
+			{indx:1, deptname: 'A', gudingzichan: 100000, shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}, 
+			{indx:2, deptname: 'B', gudingzichan: 100000, shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
+			{indx:3, deptname: 'C', gudingzichan: 100000, shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
+			{indx:4, deptname: 'D', gudingzichan: 100000, shangbanRenshu: 10, huansuanRenshu: 10, jieyu: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}
 		]
 	 
 		Meteor.call "dep", dep
