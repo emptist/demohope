@@ -65,9 +65,9 @@ Meteor.startup ->
 #以下算法可以改进为 OOP 将部分functions放到部门Object内,可能更清晰
 recalculate = -> if share.adminLoggedIn
 	#保底奖金比例之上限,为1时约为人均奖金数额.已经在client/main.coffee中设置不得大于0.8.否则保底会高于正常奖金
-	bdBi = share.Settings.findOne().val 
+	baodibiLi = share.Settings.findOne().val 
 	#从单位结余中提取多少比例发放奖金
-	fjBi = share.Settings.findOne().ratio 
+	FAjiangbiLi = share.Settings.findOne().ratio 
 
 	getDepartments = ->
 		share.Departments.find().fetch() 
@@ -77,14 +77,19 @@ recalculate = -> if share.adminLoggedIn
 		upsertWithId share.Departments, obj
 
 	#a 计算可奖结余即总奖金池, 为各部门可奖结余之和
+	#- --> 對於採用資產運營效率算法的則計算科室資產運營效率
+	#- --> 無需計算人均資產運營效率,原因是人均收支結餘/人均固定資產,分子分母抵消
+	#- --> 但由於要對虧損科室設置保底,故需計算科室資產運營效率加保底
 	zongJiangjinchi = ->
 		p = 0
 		for keshi in getDepartments()
+			keshi.YunXiao = keshi.jieyu / keshi.gudingzichan
 			p += keshi.jieyu
 		Math.max 0, p
 
 	
-	#b 计算换算人均结余
+	#b 计算人均结余,
+	
 	#b1 计算各自人均结余, 用科室可奖结余除以人数,注意 人数
 	do ->
 		renjunJieyu = (keshi)-> 
@@ -107,13 +112,13 @@ recalculate = -> if share.adminLoggedIn
 
 	#c 计算人均结余加保底
 	do ->
-		avb = -> bdBi * renjunJieyuXiaoji 
+		avb = -> baodibiLi * renjunJieyuXiaoji 
 		
 		rejust = true #<-- 调整保底金额开关
 		if rejust is false
 			cnt = 1 # 用于在亏损部门多的情况下,调节保底金额
 		else
-			cnt = 0 
+			cnt = 0.3 # 初始時cnt取0.3 是配合增加一個科室加0.7,亦即之後逐步減少補貼 
 			for keshi in getDepartments() when keshi.renjunJieyu < avb()
 				cnt += 0.7
 
@@ -131,9 +136,11 @@ recalculate = -> if share.adminLoggedIn
 			renjunJieyuJiaBaodi keshi
 
 	#d 计算结余加保底,即各科室各自  人数*人均结余加保底
+	#- --> 對於資產效率指標法,虧損科室設置保底故,須計算科室資產運營效率加保底
 	do ->
 		jieyuJiaBaodi = (keshi) ->
 			keshi.jieyuJiaBaodi = keshi.shangbanRenshu * keshi.renjunJieyuJiaBaodi
+			keshi.YunXiaoJIAbaodi = keshi.jieyuJiaBaodi / keshi.gudingzichan
 			dep keshi
 			
 		for keshi in getDepartments()
@@ -169,11 +176,15 @@ recalculate = -> if share.adminLoggedIn
 			renjunJieyuQuanzhong keshi
 	
 	
-	#h 计算科室计奖分值, 用科室 绩效分数 * 换算人数 * 人均结余权重 * 科室差异系数
+	#h 计算科室计奖分值, 
+	#h1 對於採用人均結餘權重者,用科室 绩效分数 * 换算人数 * 人均结余权重 * 科室差异系数
+	#h2 對於採用資產運營效率者,用科室 绩效分数 * 换算人数 * 資產效率加保底 * 科室差异系数
 	do ->
 		keshiJijiangFenzhi = (keshi) ->
+			qUANZhong = if ZIchanfa then keshi.YunXiaoJIAbaodi else keshi.renjunJieyuQuanzhong
 			keshi.keshiJijiangFenzhi = keshi.chayiXishu * keshi.jixiaoFenshu * 
-				keshi.huansuanRenshu * keshi.renjunJieyuQuanzhong
+				keshi.huansuanRenshu * qUANZhong
+
 			dep keshi
 
 		for keshi in getDepartments()
@@ -199,7 +210,7 @@ recalculate = -> if share.adminLoggedIn
 	#k 计算科室奖金, 用 科室领奖比例*总奖金池
 	do ->
 		keshiJiangjin = (keshi) ->
-			keshi.keshiJiangjin = keshi.keshiLingjiangBili * zongJiangjinchi() * fjBi
+			keshi.keshiJiangjin = keshi.keshiLingjiangBili * zongJiangjinchi() * FAjiangbiLi
 			keshi.renjunJiangjin = keshi.keshiJiangjin / keshi.shangbanRenshu
 			dep keshi
 
