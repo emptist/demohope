@@ -44,11 +44,11 @@ Template.department.events
 	'keyup input': (e,t) ->
 	#'keydown input': (e,t) ->
 		if true #e.keyCode in [9, 13] #is 13
-			@shangbanRenshu = 1 * t.find('#shangbanRenshu').value.trim() 
-			@huansuanRenshu = 1 * t.find('#huansuanRenshu').value.trim()
+			@ShangBANrENShu = 1 * t.find('#ShangBANrENShu').value.trim() 
+			@HuanSuanrENShu = 1 * t.find('#HuanSuanrENShu').value.trim()
 			@jixiaoFenshu = Math.max 0, 1 * t.find('#jixiaoFenshu').value.trim() #could be 0
-			@jieyu = 1 * t.find('#jieyu').value.trim()
-			@gudingzichan = 1 * t.find('#gudingzichan').value.trim()
+			@jIEyU = 1 * t.find('#jIEyU').value.trim()
+			@GuDingZIchan = 1 * t.find('#GuDingZIchan').value.trim()
 			@chayiXishu = Math.max 0.01, 1 * t.find('#chayiXishu').value.trim()
 			Meteor.call "dep", this
 			Meteor.call "recalculate"
