@@ -65,13 +65,12 @@ Meteor.startup ->
 #以下算法純為演示步驟.若欲實用,可以改进为 OOP 将部分functions放到部门Object内,可能更清晰
 recalculate = -> if share.adminLoggedIn
 	settings = share.Settings.findOne()
+	
 	#保底绩效分配比例之上限,为1时约为人均绩效分配数额.已经在client/main.coffee中设置不得大于0.8.否则保底会高于正常绩效分配
 	baodibiLi = settings.val 
 	#从单位结余中提取多少比例发放绩效分配
 	FENPeibiLi = settings.ratio
-	#採用資產法 此checkbox似乎没有正常工作原因不知
-	#ZIchanfa = true #settings.ZIchanfa
-
+	
 	getDepartments = ->
 		share.Departments.find().fetch() 
 		#share.Departments.find() <-- it took a lot of time to find this bug: missing fetch()  
@@ -86,18 +85,16 @@ recalculate = -> if share.adminLoggedIn
 		zc += KEShi.GuDingZIchan
 	zongJiXiaoGONGZIchI = Math.max 0, gz
 	zongGudingZIchan = Math.max 0, zc
+	
 	# 保底運營效率 保底比例 * 總的資產運營效率
+	# 计算科室计奖分值
 	baodiYUNXiao = baodibiLi * zongJiXiaoGONGZIchI / zongGudingZIchan 
 	for KEShi in getDepartments()
 		KEShi.YunXiaoJIAbaodi = Math.max KEShi.jIEyU / KEShi.GuDingZIchan, baodiYunXiao 
+		KEShi.KEShiJijiangFENzhI = KEShi.chayiXishu * KEShi.jixiaoFenshu * KEShi.HuanSuanrENShu * KEShi.YunXiaoJIAbaodi
 		dep KEShi
 		
-	# 计算科室计奖分值
-	for KEShi in getDepartments()
-		KEShi.KEShiJijiangFENzhI = KEShi.chayiXishu * KEShi.jixiaoFenshu * 
-			KEShi.HuanSuanrENShu * KEShi.YunXiaoJIAbaodi
-		dep KEShi
-
+	
 	#i 计算科室计奖分值小计
 	keshiJijiangFenzhiXiaoji = ->
 		xj = 0
@@ -108,15 +105,11 @@ recalculate = -> if share.adminLoggedIn
 
 	#j 计算科室领奖比例, 用科室计奖分值/科室计奖分值小计
 	#k 计算科室绩效分配, 用 科室领奖比例*总绩效分配池
-	do ->
-		keshiLingjiangBili = (KEShi) ->
-			KEShi.keshiLingjiangBili = KEShi.KEShiJijiangFENzhI / keshiJijiangFenzhiXiaoji()
-			KEShi.keshiJiangjin = KEShi.keshiLingjiangBili * zongJiXiaoGONGZIchI * FENPeibiLi
-			KEShi.renjunJiangjin = KEShi.keshiJiangjin / KEShi.ZaigangrENShu
-			dep KEShi
-
-		for KEShi in getDepartments()
-			keshiLingjiangBili KEShi
+	for KEShi in getDepartments()
+		KEShi.keshiLingjiangBili = KEShi.KEShiJijiangFENzhI / keshiJijiangFenzhiXiaoji()
+		KEShi.keshiJiangjin = KEShi.keshiLingjiangBili * zongJiXiaoGONGZIchI * FENPeibiLi
+		KEShi.renjunJiangjin = KEShi.keshiJiangjin / KEShi.ZaigangrENShu
+		dep KEShi
 
 	
 
