@@ -79,74 +79,24 @@ recalculate = -> if share.adminLoggedIn
 	dep = (obj)->
 		upsertWithId share.Departments, obj
 
-	#a 计算可奖结余即总绩效分配池, 为各部门可奖结余之和
-	#- --> 對於採用資產運營效率算法的則計算科室資產運營效率
-	#- --> 無需計算人均資產運營效率,原因是人均收支結餘/人均固定資產,分子分母抵消
-	#- --> 但由於要對虧損科室設置保底,故需計算科室資產運營效率加保底
-	zongJiXiaoGONGZIchI = ->
-		p = 0
-		for KEShi in getDepartments()
-			#KEShi.YunXiao = KEShi.jIEyU / KEShi.GuDingZIchan
-			p += KEShi.jIEyU
-		Math.max 0, p
-
-	
-	#b 计算人均结余,
-	
-	#b1 计算各自人均结余, 用科室可奖结余除以在岗人数
-	do ->
-		rENJUNjIEyU = (KEShi)-> 
-			KEShi.rENJUNjIEyU = KEShi.jIEyU / KEShi.ZaigangrENShu
-			dep KEShi
+	gz = 0
+	zc = 0
+	for KEShi in getDepartments()
+		gz += KEShi.jIEyU
+		zc += KEShi.GuDingZIchan
+	zongJiXiaoGONGZIchI = Math.max 0, gz
+	zongGudingZIchan = Math.max 0, zc
+	# 保底運營效率 保底比例 * 總的資產運營效率
+	baodiYUNXiao = baodibiLi * zongJiXiaoGONGZIchI / zongGudingZIchan 
+	for KEShi in getDepartments()
+		KEShi.YunXiaoJIAbaodi = Math.max KEShi.jIEyU / KEShi.GuDingZIchan, baodiYunXiao 
+		dep KEShi
 		
-		for KEShi in getDepartments()
-			rENJUNjIEyU KEShi
-	
-		
-	#b2 计算人均结余全院均值, 用总绩效工资池除以各部门在岗人数和
-	rENJUNjIEyUJUNzhI = ->
-		ZaigangrENShuqUANYuanzongJi = (GeKEShi) -> 
-			xj = 0
-			for KEShi in GeKEShi
-				xj += KEShi.ZaigangrENShu
-			xj
-		zongJiXiaoGONGZIchI() / ZaigangrENShuqUANYuanzongJi( getDepartments())
-			
-
-	#c 计算人均结余加保底
-	#d 计算结余加保底,即各科室各自  人数*人均结余加保底
-	#- --> 對於資產效率指標法,虧損科室設置保底故,須計算科室資產運營效率加保底
-	do ->
-		baodiJUNzhIShangXian = baodibiLi * rENJUNjIEyUJUNzhI() 
-		rENJUNjIEyUJIAbaodi = (KEShi) ->
-			KEShi.rENJUNjIEyUJIAbaodi = Math.max KEShi.rENJUNjIEyU, baodiJUNzhIShangXian #if x > baodiJUNzhIShangXian then x else baodiJUNzhIShangXian
-			KEShi.jIEyUJIAbaodi = KEShi.ZaigangrENShu * KEShi.rENJUNjIEyUJIAbaodi
-			KEShi.YunXiaoJIAbaodi = KEShi.jIEyUJIAbaodi / KEShi.GuDingZIchan
-			dep KEShi
-		
-		zj = 0			
-		for KEShi in getDepartments()
-			rENJUNjIEyUJIAbaodi KEShi
-			
-			zj += KEShi.jIEyUJIAbaodi
-		#e 计算结余加保底和
-		jIEyUJIAbaodihE = zj
-
-	
-	#h 计算科室计奖分值, 
-	#h1 對於採用人均結餘權重者,用科室 绩效分数 * 换算人数 * 人均结余权重 * 科室差异系数
-	#h2 對於採用資產運營效率者,用科室 绩效分数 * 换算人数 * 資產效率加保底 * 科室差异系数
-	do ->
-		KEShiJijiangFENzhI = (KEShi) ->
-			#qUANZhong = if ZIchanfa then KEShi.YunXiaoJIAbaodi else KEShi.rENJUNjIEyUqUANZhong
-			qUANZhong = KEShi.YunXiaoJIAbaodi 
-			KEShi.KEShiJijiangFENzhI = KEShi.chayiXishu * KEShi.jixiaoFenshu * 
-				KEShi.HuanSuanrENShu * qUANZhong
-
-			dep KEShi
-
-		for KEShi in getDepartments()
-			KEShiJijiangFENzhI KEShi
+	# 计算科室计奖分值
+	for KEShi in getDepartments()
+		KEShi.KEShiJijiangFENzhI = KEShi.chayiXishu * KEShi.jixiaoFenshu * 
+			KEShi.HuanSuanrENShu * KEShi.YunXiaoJIAbaodi
+		dep KEShi
 
 	#i 计算科室计奖分值小计
 	keshiJijiangFenzhiXiaoji = ->
@@ -157,25 +107,18 @@ recalculate = -> if share.adminLoggedIn
 
 
 	#j 计算科室领奖比例, 用科室计奖分值/科室计奖分值小计
+	#k 计算科室绩效分配, 用 科室领奖比例*总绩效分配池
 	do ->
 		keshiLingjiangBili = (KEShi) ->
 			KEShi.keshiLingjiangBili = KEShi.KEShiJijiangFENzhI / keshiJijiangFenzhiXiaoji()
+			KEShi.keshiJiangjin = KEShi.keshiLingjiangBili * zongJiXiaoGONGZIchI * FENPeibiLi
+			KEShi.renjunJiangjin = KEShi.keshiJiangjin / KEShi.ZaigangrENShu
 			dep KEShi
 
 		for KEShi in getDepartments()
 			keshiLingjiangBili KEShi
 
-	#k 计算科室绩效分配, 用 科室领奖比例*总绩效分配池
-	do ->
-		keshiJiangjin = (KEShi) ->
-			KEShi.keshiJiangjin = KEShi.keshiLingjiangBili * zongJiXiaoGONGZIchI() * FENPeibiLi
-			KEShi.renjunJiangjin = KEShi.keshiJiangjin / KEShi.ZaigangrENShu
-			dep KEShi
-
-		for KEShi in getDepartments()
-			keshiJiangjin KEShi
-
-
+	
 
 Meteor.methods
 	baodi: (obj)-> upsertWithId share.Settings, obj
