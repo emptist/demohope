@@ -50,10 +50,10 @@ insertInto = (collection, obj)->
 Meteor.startup ->
 	upsertTo share.Settings, {indx:1, vari:"renjunBaoDiJieyu", val: 0.5, ratio: 0.3, ZIchanfa: true}
 	for dep in [
-			{indx:1, deptname: 'A', GuDingZIchan: 100000, ShangBANrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}, 
-			{indx:2, deptname: 'B', GuDingZIchan: 100000, ShangBANrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
-			{indx:3, deptname: 'C', GuDingZIchan: 100000, ShangBANrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
-			{indx:4, deptname: 'D', GuDingZIchan: 100000, ShangBANrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}
+			{indx:1, deptname: 'A', GuDingZIchan: 100000, ZaigangrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}, 
+			{indx:2, deptname: 'B', GuDingZIchan: 100000, ZaigangrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
+			{indx:3, deptname: 'C', GuDingZIchan: 100000, ZaigangrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
+			{indx:4, deptname: 'D', GuDingZIchan: 100000, ZaigangrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}
 		]
 	 
 		Meteor.call "dep", dep
@@ -62,7 +62,7 @@ Meteor.startup ->
  
 
 
-#以下算法可以改进为 OOP 将部分functions放到部门Object内,可能更清晰
+#以下算法純為演示步驟.若欲實用,可以改进为 OOP 将部分functions放到部门Object内,可能更清晰
 recalculate = -> if share.adminLoggedIn
 	settings = share.Settings.findOne()
 	#保底绩效分配比例之上限,为1时约为人均绩效分配数额.已经在client/main.coffee中设置不得大于0.8.否则保底会高于正常绩效分配
@@ -70,7 +70,7 @@ recalculate = -> if share.adminLoggedIn
 	#从单位结余中提取多少比例发放绩效分配
 	FENPeibiLi = settings.ratio
 	#採用資產法 此checkbox似乎没有正常工作原因不知
-	ZIchanfa = true #settings.ZIchanfa
+	#ZIchanfa = true #settings.ZIchanfa
 
 	getDepartments = ->
 		share.Departments.find().fetch() 
@@ -93,98 +93,46 @@ recalculate = -> if share.adminLoggedIn
 	
 	#b 计算人均结余,
 	
-	#b1 计算各自人均结余, 用科室可奖结余除以人数,注意 人数
+	#b1 计算各自人均结余, 用科室可奖结余除以在岗人数
 	do ->
 		rENJUNjIEyU = (KEShi)-> 
-			KEShi.rENJUNjIEyU = KEShi.jIEyU / KEShi.ShangBANrENShu
-			#KEShi.renjunGudingzichan = KEShi.GuDingZIchan / KEShi.ShangBANrENShu
+			KEShi.rENJUNjIEyU = KEShi.jIEyU / KEShi.ZaigangrENShu
 			dep KEShi
 		
 		for KEShi in getDepartments()
 			rENJUNjIEyU KEShi
 	
 		
-	#b2 计算人均结余小计, 用总绩效分配池除以各部门实际人数和,注意是实际人数
-	rENJUNjIEyUxiaoJi = do ->
-		ShangBANrENShuxiaoJi = (GeKEShi) -> 
+	#b2 计算人均结余全院均值, 用总绩效工资池除以各部门在岗人数和
+	rENJUNjIEyUJUNzhI = ->
+		ZaigangrENShuqUANYuanzongJi = (GeKEShi) -> 
 			xj = 0
 			for KEShi in GeKEShi
-				xj += KEShi.ShangBANrENShu
+				xj += KEShi.ZaigangrENShu
 			xj
-		zongJiXiaoGONGZIchI() / ShangBANrENShuxiaoJi( getDepartments())
+		zongJiXiaoGONGZIchI() / ZaigangrENShuqUANYuanzongJi( getDepartments())
 			
 
 	#c 计算人均结余加保底
-	do ->
-		avb = -> baodibiLi * rENJUNjIEyUxiaoJi 
-		
-		rejust = true #<-- 调整保底金额开关
-		if rejust is false
-			cnt = 1 # 用于在亏损部门多的情况下,调节保底金额
-		else
-			cnt = 0.3 # 初始時cnt取0.3 是配合增加一個科室加0.7,亦即之後逐步減少補貼 
-			for KEShi in getDepartments() when KEShi.rENJUNjIEyU < avb()
-				cnt += 0.7
-
-		rENJUNjIEyUJIAbaodi = (KEShi) ->
-			#x = KEShi.huansuanRenjunJieyu
-			x = KEShi.rENJUNjIEyU
-			
-			if x > avb() 
-				KEShi.rENJUNjIEyUJIAbaodi =	x
-			else 
-				KEShi.rENJUNjIEyUJIAbaodi = avb() * cnt #<-- ??這裡似有問題,為何* cnt?我現在困明天看
-			
-			dep KEShi
-
-		for KEShi in getDepartments()
-			rENJUNjIEyUJIAbaodi KEShi
-
 	#d 计算结余加保底,即各科室各自  人数*人均结余加保底
 	#- --> 對於資產效率指標法,虧損科室設置保底故,須計算科室資產運營效率加保底
 	do ->
-		jIEyUJIAbaodi = (KEShi) ->
-			KEShi.jIEyUJIAbaodi = KEShi.ShangBANrENShu * KEShi.rENJUNjIEyUJIAbaodi
+		baodiJUNzhIShangXian = baodibiLi * rENJUNjIEyUJUNzhI() 
+		rENJUNjIEyUJIAbaodi = (KEShi) ->
+			KEShi.rENJUNjIEyUJIAbaodi = Math.max KEShi.rENJUNjIEyU, baodiJUNzhIShangXian #if x > baodiJUNzhIShangXian then x else baodiJUNzhIShangXian
+			KEShi.jIEyUJIAbaodi = KEShi.ZaigangrENShu * KEShi.rENJUNjIEyUJIAbaodi
 			KEShi.YunXiaoJIAbaodi = KEShi.jIEyUJIAbaodi / KEShi.GuDingZIchan
 			dep KEShi
-			
-		for KEShi in getDepartments()
-			jIEyUJIAbaodi KEShi
-
-	#e 计算结余加保底和
-	jIEyUJIAbaodihE = do ->
-		jIEyUJIAbaodixiaoJi = (GeKEShi) ->
-			xj = 0
-			for KEShi in GeKEShi
-				xj += KEShi.jIEyUJIAbaodi
-			xj
-
-		jIEyUJIAbaodixiaoJi getDepartments()	
-	
-	###
-	do ->
-		#f 计算人均结余加保底小计, 用 结余加保底和除以换算人数小计
-		rENJUNjIEyUJIAbaodiJUNzhI = ->
-			HuanSuanrENShuxiaoJi = (GeKEShi) ->
-				xj = 0
-				for KEShi in GeKEShi 
-					xj += KEShi.HuanSuanrENShu
-				xj
-				
-			jIEyUJIAbaodihE / HuanSuanrENShuxiaoJi(getDepartments())
 		
-		#g 计算人均结余权重, 用 各科室各自 人均结余加保底除以人均结余加保底小计
-	
-		rENJUNjIEyUqUANZhong = (KEShi) ->
-			KEShi.rENJUNjIEyUqUANZhong = KEShi.rENJUNjIEyUJIAbaodi / rENJUNjIEyUJIAbaodiJUNzhI()
-
-			dep KEShi
-
+		zj = 0			
 		for KEShi in getDepartments()
-			rENJUNjIEyUqUANZhong KEShi
-	#明天将此改为人均资产运营指数
-	###
+			rENJUNjIEyUJIAbaodi KEShi
+			
+			zj += KEShi.jIEyUJIAbaodi
+		#e 计算结余加保底和
+		jIEyUJIAbaodihE = zj
 
+	
 	#h 计算科室计奖分值, 
 	#h1 對於採用人均結餘權重者,用科室 绩效分数 * 换算人数 * 人均结余权重 * 科室差异系数
 	#h2 對於採用資產運營效率者,用科室 绩效分数 * 换算人数 * 資產效率加保底 * 科室差异系数
@@ -221,7 +169,7 @@ recalculate = -> if share.adminLoggedIn
 	do ->
 		keshiJiangjin = (KEShi) ->
 			KEShi.keshiJiangjin = KEShi.keshiLingjiangBili * zongJiXiaoGONGZIchI() * FENPeibiLi
-			KEShi.renjunJiangjin = KEShi.keshiJiangjin / KEShi.ShangBANrENShu
+			KEShi.renjunJiangjin = KEShi.keshiJiangjin / KEShi.ZaigangrENShu
 			dep KEShi
 
 		for KEShi in getDepartments()

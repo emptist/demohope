@@ -44,7 +44,7 @@ Template.department.events
 	'keyup input': (e,t) ->
 	#'keydown input': (e,t) ->
 		if true #e.keyCode in [9, 13] #is 13
-			@ShangBANrENShu = 1 * t.find('#ShangBANrENShu').value.trim() 
+			@ZaigangrENShu = 1 * t.find('#ZaigangrENShu').value.trim() 
 			@HuanSuanrENShu = 1 * t.find('#HuanSuanrENShu').value.trim()
 			@jixiaoFenshu = Math.max 0, 1 * t.find('#jixiaoFenshu').value.trim() #could be 0
 			@jIEyU = 1 * t.find('#jIEyU').value.trim()
