@@ -2,6 +2,9 @@
 Meteor.publish "depsChannel" , ->
 	share.Departments.find()
 ###
+###
+先保存一下放到 branch yingyunzhibiao
+###
 
 share.adminLoggedIn = true
 
