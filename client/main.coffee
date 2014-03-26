@@ -50,7 +50,7 @@ Template.department.events
 			@jIEyU = 1 * t.find('#jIEyU').value.trim()
 			@GuDingZIchan = 1 * t.find('#GuDingZIchan').value.trim()
 			@chayiXishu = Math.max 0.01, 1 * t.find('#chayiXishu').value.trim()
-			Meteor.call "dep", this
+			Meteor.call "dept", this
 			Meteor.call "recalculate"
 ###
 	"click #save": (e,t) ->

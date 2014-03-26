@@ -48,7 +48,7 @@ insertInto = (collection, obj)->
 #可改进为保存Organization,其中有Departments或Teams:
 #Departments可先制作Objects	
 Meteor.startup ->
-	upsertTo share.Settings, {indx:1, vari:"renjunBaoDiJieyu", val: 0.5, ratio: 0.3, ZIchanfa: true}
+	upsertTo share.Settings, {indx:1, val: 0.5, ratio: 0.3, ZIchanfa: true}
 	for dept in [
 			{indx:1, deptname: 'A', GuDingZIchan: 100000, ZaigangrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}, 
 			{indx:2, deptname: 'B', GuDingZIchan: 100000, ZaigangrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
@@ -56,7 +56,7 @@ Meteor.startup ->
 			{indx:4, deptname: 'D', GuDingZIchan: 100000, ZaigangrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}
 		]
 	 
-		Meteor.call "dep", dept
+		Meteor.call "dept", dept
 	recalculate()
 
  
@@ -71,50 +71,50 @@ recalculate = -> if share.adminLoggedIn
 	#从单位结余中提取多少比例发放绩效分配
 	FENPeibiLi = settings.ratio
 	
-	getDepartments = ->
+	getDepts = ->
 		share.Departments.find().fetch() 
 		#share.Departments.find() <-- it took a lot of time to find this bug: missing fetch()  
 
-	dep = (obj)->
+	dept = (obj)->
 		upsertWithId share.Departments, obj
 
-	gz = 0
+	jy = 0
 	zc = 0
-	for KEShi in getDepartments()
-		gz += KEShi.jIEyU
+	for KEShi in getDepts()
+		jy += KEShi.jIEyU
 		zc += KEShi.GuDingZIchan
-	zongJiXiaoGONGZIchI = Math.max 0, gz
 	zongGudingZIchan = Math.max 0, zc
+	zongjIEyU = Math.max 0, jy
+	zongJiXiaoGONGZIchI = zongjIEyU
+	
 	
 	# 保底運營效率 保底比例 * 總的資產運營效率
+	baodiYUNXiao = baodibiLi * zongjIEyU / zongGudingZIchan 
 	# 计算科室计奖分值
-	baodiYUNXiao = baodibiLi * zongJiXiaoGONGZIchI / zongGudingZIchan 
-	for KEShi in getDepartments()
-		KEShi.YunXiaoJIAbaodi = Math.max KEShi.jIEyU / KEShi.GuDingZIchan, baodiYunXiao 
-		KEShi.KEShiJijiangFENzhI = KEShi.chayiXishu * KEShi.jixiaoFenshu * KEShi.HuanSuanrENShu * KEShi.YunXiaoJIAbaodi
-		dep KEShi
+	for KEShi in getDepts()
+		YunXiaohANbaodi = KEShi.YunXiaohANbaodi = Math.max KEShi.jIEyU / KEShi.GuDingZIchan, baodiYunXiao 
+		KEShi.ZONGhEFENzhI = KEShi.jixiaoFenshu * KEShi.HuanSuanrENShu * YunXiaohANbaodi * KEShi.chayiXishu
+		dept KEShi
 		
 	
 	#i 计算科室计奖分值小计
-	keshiJijiangFenzhiXiaoji = ->
-		xj = 0
-		for KEShi in getDepartments()
-			xj += KEShi.KEShiJijiangFENzhI
-		xj
+	ZONGhEFENzhIzongJi = 0
+	for KEShi in getDepts()
+		ZONGhEFENzhIzongJi += KEShi.ZONGhEFENzhI
 
 
 	#j 计算科室领奖比例, 用科室计奖分值/科室计奖分值小计
 	#k 计算科室绩效分配, 用 科室领奖比例*总绩效分配池
-	for KEShi in getDepartments()
-		KEShi.keshiLingjiangBili = KEShi.KEShiJijiangFENzhI / keshiJijiangFenzhiXiaoji()
-		KEShi.keshiJiangjin = KEShi.keshiLingjiangBili * zongJiXiaoGONGZIchI * FENPeibiLi
-		KEShi.renjunJiangjin = KEShi.keshiJiangjin / KEShi.ZaigangrENShu
-		dep KEShi
+	for KEShi in getDepts()
+		KEShiFENPeibiLi = KEShi.KEShiFENPeibiLi = KEShi.ZONGhEFENzhI / ZONGhEFENzhIzongJi
+		KEShijiangJIN = KEShi.KEShijiangJIN = KEShiFENPeibiLi * zongJiXiaoGONGZIchI * FENPeibiLi
+		KEShi.rENJUNjiangJIN = KEShijiangJIN / KEShi.ZaigangrENShu
+		dept KEShi
 
 	
 
 Meteor.methods
 	baodi: (obj)-> upsertWithId share.Settings, obj
-	dep: (obj)-> upsertTo share.Departments, obj
+	dept: (obj)-> upsertTo share.Departments, obj
 	#depId: (id, obj)-> upsertToId share.Departments, id, obj
 	recalculate: recalculate
