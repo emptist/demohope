@@ -89,7 +89,7 @@ recalculate = -> if share.adminLoggedIn
 	
 	
 	# 保底運營效率 保底比例 * 總的資產運營效率
-	baodiYUNXiao = baodibiLi * zongjIEyU / zongGudingZIchan 
+	baodiYunXiao = baodibiLi * zongjIEyU / zongGudingZIchan 
 	# 计算科室计奖分值
 	for KEShi in getDepts()
 		KEShi.YunXiaohANbaodi = Math.max KEShi.jIEyU / KEShi.GuDingZIchan, baodiYunXiao 
