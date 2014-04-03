@@ -46,9 +46,10 @@ insertInto = (collection, obj)->
 
 
 #可改进为保存Organization,其中有Departments或Teams:
-#Departments可先制作Objects	
-Meteor.startup ->
-	upsertTo share.Settings, {indx:1, val: 0.5, ratio: 0.3, ZIchanfa: true}
+#Departments可先制作Objects
+
+Meteor.startup -> if not share.Settings.findOne()?
+	upsertTo share.Settings, {indx:1, val: 0.5, ratio: 0.3, pown:1, ZIchanfa: true}
 	for dept in [
 			{indx:1, deptname: 'A', GuDingZIchan: 100000, ZaigangrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}, 
 			{indx:2, deptname: 'B', GuDingZIchan: 100000, ZaigangrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
@@ -70,7 +71,8 @@ recalculate = -> if share.adminLoggedIn
 	baodibiLi = settings.val 
 	#从单位结余中提取多少比例发放绩效分配
 	FENPeibiLi = settings.ratio
-	
+	pown = settings.pown
+
 	getDepts = ->
 		share.Departments.find().fetch() 
 		#share.Departments.find() <-- it took a lot of time to find this bug: missing fetch()  
@@ -94,7 +96,7 @@ recalculate = -> if share.adminLoggedIn
 	for KEShi in getDepts()
 		KEShi.YunXiaohANbaodi = Math.max KEShi.jIEyU / KEShi.GuDingZIchan, baodiYunXiao 
 		dept KEShi
-		KEShi.ZONGhEFENzhI = KEShi.jixiaoFenshu * KEShi.HuanSuanrENShu * KEShi.YunXiaohANbaodi * KEShi.chayiXishu
+		KEShi.ZONGhEFENzhI = KEShi.jixiaoFenshu * KEShi.HuanSuanrENShu * (Math.pow KEShi.YunXiaohANbaodi, 1/pown) * KEShi.chayiXishu
 		dept KEShi
 		
 	

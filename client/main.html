@@ -25,7 +25,7 @@
 
 <template name="demo">
 	{{> basicTable}}
-	{{> setRenjunBaodiJieyu}}
+	{{> basicSettings}}
 	<h2>演示方法</h2>
     	注意:如果其他人在同时使用, 则演示结果自动改变
 	<ol>
@@ -62,12 +62,14 @@
 	
 </template>
 
-<template name = "setRenjunBaodiJieyu">
+<template name = "basicSettings">
 	<div>
 	<strong>绩效分配发放比例(>1.0无效)</strong>
 	<input class="input-mini" type="text" id="jiangjinBili" value= {{ratio}}>
 	<strong>人均保底上限(>0.8无效)</strong>
 	<input class="input-mini" type="text" id="renjunBaodiJieyu" value= {{val}}>
+	<strong>power(<1 无效)</strong>
+	<input class="input-mini" type="text" id="zhiShu" value= {{pown}}>
 	<!--input type="checkbox" id="ZIchanfa" value={{ZIchanfa}}-->
 	<!-- button id="save" class="btn btn-info"> OK </button -->
 	</div>

@@ -10,11 +10,13 @@ settings = ->
 recalculate = share.recalculate
 
 
-Template.setRenjunBaodiJieyu.val = ->
+Template.basicSettings.val = ->
 	settings()?.val
-Template.setRenjunBaodiJieyu.ratio = ->
+Template.basicSettings.ratio = ->
 	settings()?.ratio
-#Template.setRenjunBaodiJieyu.ZIchanfa = ->
+Template.basicSettings.pown = ->
+	settings()?.pown
+#Template.basicSettings.ZIchanfa = ->
 #	settings()?.ZIchanfa
 
 
@@ -22,18 +24,19 @@ recalc = (e,t) ->
 	obj = settings()
 	obj.val = Math.max 0.01, (Math.min 0.8,  1 * t.find('#renjunBaodiJieyu').value.trim())
 	obj.ratio = Math.max 0.01, (Math.min 1, 1 * t.find('#jiangjinBili').value.trim())
+	obj.pown = Math.max 0.01, (Math.min 1, 1 * t.find('#zhiShu').value.trim())
 	#obj.ZIchanfa = t.find('#ZIchanfa').value
 	Meteor.call "baodi", obj
 	Meteor.call "recalculate"
-Template.setRenjunBaodiJieyu.events
+Template.basicSettings.events
 	'keyup input': (e,t) ->
 		console.log this, "lost focus"
 		recalc e,t
-####
+###
 	'keydown input': (e,t) ->
 		if e.keyCode in [9, 13]
 			recalc e, t
-####
+###
 		
 Template.basicTable.departments = ->
 	departments()	
