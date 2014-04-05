@@ -9,7 +9,11 @@
 					{{> departmentRow}}
 				</tr>
 			{{/each}}
-
+			{{#each settings}}
+				<tr>	
+					{{> tablefootRow}}
+				</tr>
+			{{/each}}
 		</tbody>
 	</table>
 </template>
@@ -50,4 +54,21 @@
 		{{rENJUNjiangJIN}}
 	</td>
 	
+</template>
+<template name = "tablefootRow">
+		<th>
+			total
+		</th>
+		<th>
+			{{ZONGhEFENzhI}}
+		</th>
+		<th>
+			{{KEShiFENPeibiLi}}
+		</th>
+		<th>
+			{{KEShijiangJIN}}
+		</th>
+		<th>
+			{{rENJUNjiangJIN}}
+		</th>
 </template> 

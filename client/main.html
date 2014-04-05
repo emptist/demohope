@@ -33,7 +33,7 @@
 			输入时结果会自动改变
 		</li>
 		<li>
-			设置人均保底绩效分配比例上限和收支结余绩效分配发放比例
+			设置变异修正指数, 人均保底绩效分配比例上限和收支结余绩效分配发放比例
 		</li>
 		<li> 
 			输入部门名, 在岗人数, 考勤换算人数, 部门考评得分, 收支结余, 固定资产 
@@ -41,11 +41,11 @@
 		</li>
 
 		<li>
-			设置部门差异系数, 体现政策性倾斜或扶持, 对于公益事业可用以体现社会效益 
+			设置部门差异系数, 体现风险, 政策性倾斜或扶持, 对于公益事业可用以体现社会效益 
 			
 		</li>
 		<li>
-			本法要素: KPI(已含工作量), 负荷, 资产运营效率, 政策因素
+			本法要素: KPI(已含工作量等), 负荷, 资产运营效率, 部门差异(风险/政策因素等)
 		</li>
 	</ol>
 	<h2>欢迎垂询</h2>
@@ -63,15 +63,17 @@
 </template>
 
 <template name = "basicSettings">
+{{#each settings}}
 	<div>
 	<strong>绩效分配发放比例(>1.0无效)</strong>
-	<input class="input-mini" type="text" id="jiangjinBili" value= {{ratio}}>
+	<input class="input-mini" type="text" id="jiangJINbiLi" value= {{ratio}}>
 	<strong>人均保底上限(>0.8无效)</strong>
-	<input class="input-mini" type="text" id="renjunBaodiJieyu" value= {{val}}>
-	<strong>power(<1 无效)</strong>
+	<input class="input-mini" type="text" id="baodibiLi" value= {{val}}>
+	<strong>变异修正指数(小于1无效)	</strong>
 	<input class="input-mini" type="text" id="zhiShu" value= {{pown}}>
 	<!--input type="checkbox" id="ZIchanfa" value={{ZIchanfa}}-->
 	<!-- button id="save" class="btn btn-info"> OK </button -->
 	</div>
+{{/each}}
 </template>
 

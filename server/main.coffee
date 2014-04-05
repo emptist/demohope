@@ -48,7 +48,7 @@ insertInto = (collection, obj)->
 #可改进为保存Organization,其中有Departments或Teams:
 #Departments可先制作Objects
 
-Meteor.startup -> if not share.Settings.findOne()?
+Meteor.startup -> unless share.Settings.findOne()? # to initialize only once
 	upsertTo share.Settings, {indx:1, val: 0.5, ratio: 0.3, pown:1, ZIchanfa: true}
 	for dept in [
 			{indx:1, deptname: 'A', GuDingZIchan: 100000, ZaigangrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}, 
@@ -79,7 +79,10 @@ recalculate = -> if share.adminLoggedIn
 
 	dept = (obj)->
 		upsertWithId share.Departments, obj
-
+	
+	sttng = (obj)->
+		upsertWithId share.Settings, obj
+		
 	jy = 0
 	zc = 0
 	for KEShi in getDepts()
@@ -105,18 +108,31 @@ recalculate = -> if share.adminLoggedIn
 	for KEShi in getDepts()
 		ZONGhEFENzhIzongJi += KEShi.ZONGhEFENzhI
 
-
+	
+	settings.ZONGhEFENzhI = ZONGhEFENzhIzongJi
+	settings.KEShiFENPeibiLi = 0
+	settings.KEShijiangJIN = 0
+	settings.ZaigangrENShu = 0
+	settings.rENJUNjiangJIN = 0
+	
 	#j 计算科室领奖比例, 用科室计奖分值/科室计奖分值小计
 	#k 计算科室绩效分配, 用 科室领奖比例*总绩效分配池
 	for KEShi in getDepts()
 		KEShi.KEShiFENPeibiLi = KEShi.ZONGhEFENzhI / ZONGhEFENzhIzongJi
 		dept KEShi
+		settings.KEShiFENPeibiLi += KEShi.KEShiFENPeibiLi
+		
 		KEShi.KEShijiangJIN = KEShi.KEShiFENPeibiLi * zongJiXiaoGONGZIchI * FENPeibiLi
 		dept KEShi
+		settings.KEShijiangJIN += KEShi.KEShijiangJIN
+		
 		KEShi.rENJUNjiangJIN = KEShi.KEShijiangJIN / KEShi.ZaigangrENShu
 		dept KEShi
+		settings.ZaigangrENShu += KEShi.ZaigangrENShu
 
-	
+	settings.rENJUNjiangJIN = settings.KEShijiangJIN / settings.ZaigangrENShu
+
+	sttng settings
 
 Meteor.methods
 	baodi: (obj)-> upsertWithId share.Settings, obj
