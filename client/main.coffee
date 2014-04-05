@@ -23,8 +23,8 @@ Template.tablefootRow.settings = ->
 
 Template.basicSettings.events
 	'keyup input': (e,t) ->
-		@val = Math.max 0.01, (Math.min 0.8,  1 * t.find('#baodibiLi').value.trim())
-		@ratio = Math.max 0.01, (Math.min 1, 1 * t.find('#jiangJINbiLi').value.trim())
+		@baodibiLi = Math.max 0.01, (Math.min 0.8,  1 * t.find('#baodibiLi').value.trim())
+		@FENPeibiLi = Math.max 0.01, (Math.min 1, 1 * t.find('#jiangJINbiLi').value.trim())
 		@pown = Math.max 1, (Math.min 10, 1 * t.find('#zhiShu').value.trim())
 		Meteor.call "sett", @
 		Meteor.call "recalculate"
@@ -39,8 +39,8 @@ Template.department.events
 		@HuanSuanrENShu = 1 * t.find('#HuanSuanrENShu').value.trim()
 		@jixiaoFenshu = Math.max 0, 1 * t.find('#jixiaoFenshu').value.trim() #could be 0
 		@jIEyU = 1 * t.find('#jIEyU').value.trim()
-		@GuDingZIchan = 1 * t.find('#GuDingZIchan').value.trim()
-		@chayiXishu = Math.max 0.01, 1 * t.find('#chayiXishu').value.trim()
+		@GuDingZIchan = Math.max 1, 1 * t.find('#GuDingZIchan').value.trim()
+		@CHAYiXiShu = Math.max 0.01, 1 * t.find('#CHAYiXiShu').value.trim()
 		Meteor.call "dept", this
 		Meteor.call "recalculate"
 		

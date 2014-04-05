@@ -39,29 +39,47 @@ insertInto = (collection, obj)->
 			obj.createdOn = new Date
 			collection.insert obj
 
-dept = (obj)->
-	upsertWithId share.Departments, obj
-
-sett = (obj)->
-	upsertWithId share.Settings, obj
 	
 
 #可改进为保存Organization,其中有Departments或Teams:
 #Departments可先制作Objects
 
-Meteor.startup -> unless share.Settings.findOne()?.pown? # to initialize only once
-	upsertTo share.Settings, {indx:1, val: 0.5, ratio: 0.3, pown:1, ZIchanfa: true}
-	for dept in [
-			{indx:1, deptname: 'A', GuDingZIchan: 100000, ZaigangrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}, 
-			{indx:2, deptname: 'B', GuDingZIchan: 100000, ZaigangrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
-			{indx:3, deptname: 'C', GuDingZIchan: 100000, ZaigangrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99},
-			{indx:4, deptname: 'D', GuDingZIchan: 100000, ZaigangrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}
-		]
-	 
-		upsertTo share.Departments, dept
+Meteor.startup -> 
+	unless share.Settings.findOne()?.pown? # to initialize only once
+	#if true
+		 class Settings 
+		 	indx:1 
+		 	baodibiLi: 0.5 
+		 	FENPeibiLi: 0.3 
+		 	pown:1
+		
+		upsertTo share.Settings, new Settings
+
+		class Department 
+			constructor: (@deptname) ->
+
+		createDept = (deptname)->
+		 	dept = new Department deptname
+		 	dept.GuDingZIchan = 100000
+		 	dept.ZaigangrENShu = 10
+		 	dept.HuanSuanrENShu = 10
+		 	dept.jixiaoFenshu = 99
+		 	dept.CHAYiXiShu = 1
+		 	dept.jIEyU = 50000
+		 	dept
+
+	 	for deptname in ['A','B','C','D','E']
+		 	insertInto share.Departments, createDept deptname
+	
+	console.log share.Departments.find().fetch()
 	recalculate()
 
  
+dept = (obj)->
+	upsertWithId share.Departments, obj
+
+sett = (obj)->
+	upsertWithId share.Settings, obj
 
 
 #以下算法純為演示步驟.若欲實用,可以改进为 OOP 将部分functions放到部门Object内,可能更清晰
@@ -69,9 +87,9 @@ recalculate = -> if share.adminLoggedIn
 	settings = share.Settings.findOne()
 	
 	#保底绩效分配比例之上限,为1时约为人均绩效分配数额.已经在client/main.coffee中设置不得大于0.8.否则保底会高于正常绩效分配
-	baodibiLi = settings.val 
+	baodibiLi = settings.baodibiLi 
 	#从单位结余中提取多少比例发放绩效分配
-	FENPeibiLi = settings.ratio
+	FENPeibiLi = settings.FENPeibiLi
 	pown = settings.pown
 
 	getDepts = ->
@@ -101,7 +119,7 @@ recalculate = -> if share.adminLoggedIn
 		bao = Math.max 0, 0.5 * (YX + baodiYunXiao) 
 		KEShi.YunXiaohANbaodi =  Math.max YX, bao
 		dept KEShi
-		KEShi.ZONGhEFENzhI = KEShi.jixiaoFenshu * KEShi.HuanSuanrENShu * (Math.pow KEShi.YunXiaohANbaodi, 1/pown) * KEShi.chayiXishu
+		KEShi.ZONGhEFENzhI = KEShi.jixiaoFenshu * KEShi.HuanSuanrENShu * (Math.pow KEShi.YunXiaohANbaodi, 1/pown) * KEShi.CHAYiXiShu
 		dept KEShi
 		
 	
