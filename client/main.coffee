@@ -26,7 +26,7 @@ Template.basicSettings.events
 		@val = Math.max 0.01, (Math.min 0.8,  1 * t.find('#baodibiLi').value.trim())
 		@ratio = Math.max 0.01, (Math.min 1, 1 * t.find('#jiangJINbiLi').value.trim())
 		@pown = Math.max 1, (Math.min 10, 1 * t.find('#zhiShu').value.trim())
-		Meteor.call "baodi", @
+		Meteor.call "sett", @
 		Meteor.call "recalculate"
 			
 Template.basicTable.departments = ->
