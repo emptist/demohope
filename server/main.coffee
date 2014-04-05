@@ -48,7 +48,7 @@ insertInto = (collection, obj)->
 #可改进为保存Organization,其中有Departments或Teams:
 #Departments可先制作Objects
 
-Meteor.startup -> unless share.Settings.findOne()? # to initialize only once
+Meteor.startup -> unless share.Settings.findOne()?.pown? # to initialize only once
 	upsertTo share.Settings, {indx:1, val: 0.5, ratio: 0.3, pown:1, ZIchanfa: true}
 	for dept in [
 			{indx:1, deptname: 'A', GuDingZIchan: 100000, ZaigangrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}, 
