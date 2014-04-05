@@ -19,19 +19,15 @@ upsertTo = (collection, obj)->
 		collection.update indx: obj.indx ,
 			obj, 
 			upsert: true
-		share.consolelog collection, obj
 
 upsertWithId = (collection, obj)-> 
-	# each obj should have an indx; return Mongodb object _id
 	if share.adminLoggedIn
 		obj.createdOn = new Date
 		collection.update _id: obj._id ,
 			obj, 
 			upsert: true
-		share.consolelog collection, obj
 
 upsertToId = (collection, id, obj)-> 
-	# each obj should have an indx; return Mongodb object _id
 	if share.adminLoggedIn
 		obj.createdOn = new Date
 		collection.update _id:id ,
@@ -57,7 +53,7 @@ Meteor.startup -> unless share.Settings.findOne()?.pown? # to initialize only on
 			{indx:4, deptname: 'D', GuDingZIchan: 100000, ZaigangrENShu: 10, HuanSuanrENShu: 10, jIEyU: 50000, chayiXishu: 1.0, jixiaoFenshu: 99}
 		]
 	 
-		Meteor.call "dept", dept
+		upsertTo share.Departments, dept
 	recalculate()
 
  
@@ -82,43 +78,45 @@ recalculate = -> if share.adminLoggedIn
 	
 	sttng = (obj)->
 		upsertWithId share.Settings, obj
+	
 		
 	jy = 0
 	zc = 0
+	ZaigangrENShu = 0
 	for KEShi in getDepts()
 		jy += KEShi.jIEyU
 		zc += KEShi.GuDingZIchan
+		ZaigangrENShu += KEShi.ZaigangrENShu
+	
 	zongGudingZIchan = Math.max 0, zc
 	zongjIEyU = Math.max 0, jy
 	zongJiXiaoGONGZIchI = zongjIEyU
-	
+	rENJUNjiangJIN = zongJiXiaoGONGZIchI / ZaigangrENShu
 	
 	# 保底運營效率 保底比例 * 總的資產運營效率
-	baodiYunXiao = baodibiLi * zongjIEyU / zongGudingZIchan 
+	# baodiYunXiao = baodibiLi * zongjIEyU / zongGudingZIchan 
 	# 计算科室计奖分值
 	for KEShi in getDepts()
-		KEShi.YunXiaohANbaodi = Math.max KEShi.jIEyU / KEShi.GuDingZIchan, baodiYunXiao 
+		bao = Math.max 0, 0.5 * (KEShi.jIEyU + baodibiLi * rENJUNjiangJIN * KEShi.ZaigangrENShu) 
+		KEShi.YunXiaohANbaodi =  (Math.max KEShi.jIEyU, bao) / KEShi.GuDingZIchan
 		dept KEShi
 		KEShi.ZONGhEFENzhI = KEShi.jixiaoFenshu * KEShi.HuanSuanrENShu * (Math.pow KEShi.YunXiaohANbaodi, 1/pown) * KEShi.chayiXishu
 		dept KEShi
 		
 	
 	#i 计算科室计奖分值小计
-	ZONGhEFENzhIzongJi = 0
+	settings.ZONGhEFENzhI = 0
 	for KEShi in getDepts()
-		ZONGhEFENzhIzongJi += KEShi.ZONGhEFENzhI
-
+		settings.ZONGhEFENzhI += KEShi.ZONGhEFENzhI
 	
-	settings.ZONGhEFENzhI = ZONGhEFENzhIzongJi
-	settings.KEShiFENPeibiLi = 0
-	settings.KEShijiangJIN = 0
-	settings.ZaigangrENShu = 0
-	settings.rENJUNjiangJIN = 0
 	
 	#j 计算科室领奖比例, 用科室计奖分值/科室计奖分值小计
+	settings.KEShiFENPeibiLi = 0
+	settings.KEShijiangJIN = 0
+	settings.rENJUNjiangJIN = 0
 	#k 计算科室绩效分配, 用 科室领奖比例*总绩效分配池
 	for KEShi in getDepts()
-		KEShi.KEShiFENPeibiLi = KEShi.ZONGhEFENzhI / ZONGhEFENzhIzongJi
+		KEShi.KEShiFENPeibiLi = KEShi.ZONGhEFENzhI / settings.ZONGhEFENzhI
 		dept KEShi
 		settings.KEShiFENPeibiLi += KEShi.KEShiFENPeibiLi
 		
@@ -128,14 +126,13 @@ recalculate = -> if share.adminLoggedIn
 		
 		KEShi.rENJUNjiangJIN = KEShi.KEShijiangJIN / KEShi.ZaigangrENShu
 		dept KEShi
-		settings.ZaigangrENShu += KEShi.ZaigangrENShu
 
-	settings.rENJUNjiangJIN = settings.KEShijiangJIN / settings.ZaigangrENShu
+	settings.rENJUNjiangJIN = settings.KEShijiangJIN / ZaigangrENShu
 
 	sttng settings
 
 Meteor.methods
 	baodi: (obj)-> upsertWithId share.Settings, obj
-	dept: (obj)-> upsertTo share.Departments, obj
+	dept: (obj)-> upsertWithId share.Departments, obj
 	#depId: (id, obj)-> upsertToId share.Departments, id, obj
 	recalculate: recalculate
