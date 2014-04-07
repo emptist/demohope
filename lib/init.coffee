@@ -1,2 +1,2 @@
-share.Departments = new Meteor.Collection "DemoDepartments"
-share.Settings = new Meteor.Collection "DemoSettings"
+share.Departments = new Meteor.Collection "DmDepartments"
+share.Settings = new Meteor.Collection "DmSettings"

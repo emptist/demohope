@@ -45,33 +45,33 @@ insertInto = (collection, obj)->
 #Departments可先制作Objects
 
 Meteor.startup -> 
-	unless share.Settings.findOne()?.pown? # to initialize only once
-	#if true
-		 class Settings 
-		 	indx:1 
+	unless share.Settings.findOne()?#.pown? # to initialize only once
+		class Settings 
+		 	constructor: (@indx)-> 
 		 	baodibiLi: 0.5 
 		 	FENPeibiLi: 0.3 
 		 	pown:1
-		
-		upsertTo share.Settings, new Settings
+		insertInto share.Settings, new Settings 1 
 
+		
+	unless share.Departments.findOne()?
 		class Department 
 			constructor: (@deptname) ->
+			GuDingZIchan: 100000
+			ZaigangrENShu: 10
+			HuanSuanrENShu: 10
+			jixiaoFenshu: 99
+			CHAYiXiShu: 1
+			jIEyU: 50000
 
-		createDept = (deptname)->
-		 	dept = new Department deptname
-		 	dept.GuDingZIchan = 100000
-		 	dept.ZaigangrENShu = 10
-		 	dept.HuanSuanrENShu = 10
-		 	dept.jixiaoFenshu = 99
-		 	dept.CHAYiXiShu = 1
-		 	dept.jIEyU = 50000
-		 	dept
-
+		#createDept = (deptname) ->
+		#	new Department deptname
+		
 	 	for deptname in ['A','B','C','D','E']
-		 	insertInto share.Departments, createDept deptname
+		 	insertInto share.Departments, new Department deptname # createDept deptname
 	
-	console.log share.Departments.find().fetch()
+	#console.log share.Departments.find().fetch()
+	#console.log share.Settings.findOne()
 	recalculate()
 
  
