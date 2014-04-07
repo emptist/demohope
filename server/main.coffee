@@ -120,7 +120,7 @@ recalculate = -> if share.adminLoggedIn
 		YX = KEShi.jIEyU / KEShi.GuDingZIchan
 		bao = Math.max 0, 0.5 * (YX + baodiYunXiao) 
 		KEShi.YunXiaohANbaodi =  Math.max YX, bao
-		dept KEShi
+		#dept KEShi
 		KEShi.ZONGhEFENzhI = KEShi.jixiaoFenshu * KEShi.HuanSuanrENShu * (Math.pow KEShi.YunXiaohANbaodi, 1/pown) * KEShi.CHAYiXiShu
 		dept KEShi
 		settings.ZONGhEFENzhI += KEShi.ZONGhEFENzhI
