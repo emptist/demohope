@@ -41,20 +41,20 @@ insertInto = (collection, obj)->
 
 	
 
+		
 #可改进为保存Organization,其中有Departments或Teams:
-#Departments可先制作Objects
-
 Meteor.startup -> 
-	unless share.Settings.findOne()?#.pown? # to initialize only once
+	unless share.Settings.findOne()? # to initialize only once
 		class Settings 
 		 	constructor: (@indx)-> 
 		 	baodibiLi: 0.5 
 		 	FENPeibiLi: 0.3 
-		 	pown:1
+		 	pown: 1
+
 		insertInto share.Settings, new Settings 1 
 
 		
-	unless share.Departments.findOne()?
+	unless share.Departments.findOne()? # to initialize only once
 		class Department 
 			constructor: (@deptname) ->
 			GuDingZIchan: 100000
@@ -63,12 +63,14 @@ Meteor.startup ->
 			jixiaoFenshu: 99
 			CHAYiXiShu: 1
 			jIEyU: 50000
-
-		#createDept = (deptname) ->
-		#	new Department deptname
+			# object methods could not be stored into mongodb so the following doesn't work
+			YunXiaohANbaodi: (baodiYunXiao) =>
+				YX = @jIEyU / @GuDingZIchan
+				bao = Math.max 0, 0.5 * (YX + baodiYunXiao) 
+				Math.max YX, bao
 		
 	 	for deptname in ['A','B','C','D','E']
-		 	insertInto share.Departments, new Department deptname # createDept deptname
+		 	insertInto share.Departments, new Department deptname 
 	
 	#console.log share.Departments.find().fetch()
 	#console.log share.Settings.findOne()
@@ -82,22 +84,21 @@ sett = (obj)->
 	upsertWithId share.Settings, obj
 
 
-#以下算法純為演示步驟.若欲實用,可以改进为 OOP 将部分functions放到部门Object内,可能更清晰
 recalculate = -> if share.adminLoggedIn
 	settings = share.Settings.findOne()
-	
-	#保底绩效分配比例之上限,为1时约为人均绩效分配数额.已经在client/main.coffee中设置不得大于0.8.否则保底会高于正常绩效分配
 	baodibiLi = settings.baodibiLi 
-	#从单位结余中提取多少比例发放绩效分配
 	FENPeibiLi = settings.FENPeibiLi
 	pown = settings.pown
 
+	#re-initializing
+	settings.ZONGhEFENzhI = 0
+	settings.KEShiFENPeibiLi = 0
+	settings.KEShijiangJIN = 0
+	settings.rENJUNjiangJIN = 0
+
 	getDepts = ->
 		share.Departments.find().fetch() 
-		#share.Departments.find() <-- it took a lot of time to find this bug: missing fetch()  
 
-	
-		
 	jy = 0
 	zc = 0
 	ZaigangrENShu = 0
@@ -114,6 +115,7 @@ recalculate = -> if share.adminLoggedIn
 	# 保底運營效率 保底比例 * 總的資產運營效率
 	baodiYunXiao = baodibiLi * zongjIEyU / zongGudingZIchan 
 	# 计算科室计奖分值
+
 	for KEShi in getDepts()
 		YX = KEShi.jIEyU / KEShi.GuDingZIchan
 		bao = Math.max 0, 0.5 * (YX + baodiYunXiao) 
@@ -121,18 +123,16 @@ recalculate = -> if share.adminLoggedIn
 		dept KEShi
 		KEShi.ZONGhEFENzhI = KEShi.jixiaoFenshu * KEShi.HuanSuanrENShu * (Math.pow KEShi.YunXiaohANbaodi, 1/pown) * KEShi.CHAYiXiShu
 		dept KEShi
-		
+		settings.ZONGhEFENzhI += KEShi.ZONGhEFENzhI
 	
 	#i 计算科室计奖分值小计
-	settings.ZONGhEFENzhI = 0
-	for KEShi in getDepts()
-		settings.ZONGhEFENzhI += KEShi.ZONGhEFENzhI
+	
+	#for KEShi in getDepts()
+	#	settings.ZONGhEFENzhI += KEShi.ZONGhEFENzhI
 	
 	
 	#j 计算科室领奖比例, 用科室计奖分值/科室计奖分值小计
-	settings.KEShiFENPeibiLi = 0
-	settings.KEShijiangJIN = 0
-	settings.rENJUNjiangJIN = 0
+	
 	#k 计算科室绩效分配, 用 科室领奖比例*总绩效分配池
 	for KEShi in getDepts()
 		KEShi.KEShiFENPeibiLi = KEShi.ZONGhEFENzhI / settings.ZONGhEFENzhI
