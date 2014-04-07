@@ -7,6 +7,8 @@ departments = ->
 settings = -> 
 	share.Settings.find(indx:1)
 
+Template.basicTable.departments = ->
+	departments()	
 
 Template.tableView.departments = ->
 	departments()
@@ -14,23 +16,22 @@ Template.tableView.departments = ->
 Template.tableView.settings = ->
 	settings()
 
-Template.basicSettings.settings = ->
-	settings()
 
 Template.tablefootRow.settings = ->
 	settings()
 
+
+Template.basicSettings.settings = ->
+	settings()
 
 Template.basicSettings.events
 	'keyup input': (e,t) ->
 		@baodibiLi = Math.max 0.01, (Math.min 0.8,  1 * t.find('#baodibiLi').value.trim())
 		@FENPeibiLi = Math.max 0.01, (Math.min 1, 1 * t.find('#jiangJINbiLi').value.trim())
 		@pown = Math.max 1, (Math.min 10, 1 * t.find('#zhiShu').value.trim())
-		Meteor.call "sett", @
+		Meteor.call "sett", this
 		Meteor.call "recalculate"
 			
-Template.basicTable.departments = ->
-	departments()	
 
 		
 Template.department.events 
