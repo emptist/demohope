@@ -125,12 +125,10 @@ recalculate = -> if share.adminLoggedIn
 		dept KEShi
 		settings.ZONGhEFENzhI += KEShi.ZONGhEFENzhI
 	
+	sett settings
+	
 	#i 计算科室计奖分值小计
-	
-	#for KEShi in getDepts()
-	#	settings.ZONGhEFENzhI += KEShi.ZONGhEFENzhI
-	
-	
+		
 	#j 计算科室领奖比例, 用科室计奖分值/科室计奖分值小计
 	
 	#k 计算科室绩效分配, 用 科室领奖比例*总绩效分配池
@@ -147,7 +145,6 @@ recalculate = -> if share.adminLoggedIn
 		dept KEShi
 
 	settings.rENJUNjiangJIN = settings.KEShijiangJIN / ZaigangrENShu
-
 	sett settings
 
 Meteor.methods
