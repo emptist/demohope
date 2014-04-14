@@ -4,7 +4,8 @@
 # but you can also edit it by hand.
 
 standard-app-packages
-autopublish
-insecure
 coffeescript
 bootstrap
+insecure
+autopublish
+spiderable
