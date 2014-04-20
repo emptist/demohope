@@ -50,6 +50,7 @@ Template.department.events
 		###
 		
 		v = 1 * e.target.value.trim() 
+		console.log this, e.target.value.trim() 
 		this["#{e.target.id}"] = switch e.target.id
 			when "ZaigangrENShu" then v
 			when "HuanSuanrENShu" then v
@@ -57,7 +58,7 @@ Template.department.events
 			when "jIEyU" then v
 			when "GuDingZIchan" then Math.max 1, v
 			when "CHAYiXiShu" then Math.max 0.01, v
-			#else 0
+			else e.target.value.trim()
 
 		Meteor.setTimeout ( () => 
 			Meteor.call "dept", this
