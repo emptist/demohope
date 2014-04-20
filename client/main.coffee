@@ -7,7 +7,7 @@ departments = ->
 settings = -> 
 	share.Settings.find(indx:1)
 
-Template.basicTable.departments = ->
+Template.departments.departments = ->
 	departments()	
 
 Template.tableView.departments = ->
@@ -32,17 +32,36 @@ Template.basicSettings.events
 		Meteor.call "sett", this
 		Meteor.call "recalculate"
 			
-
+###		
+Template.departments.events 
+	'keyup input': (e,t) ->
+		if e.keycode in [13, 9]
+			Session.set "updateDeps", true
+		else 
+			Session.set "updateDeps", false
+###
 		
 Template.department.events 
 	'keyup input': (e,t) ->
-		@ZaigangrENShu = 1 * t.find('#ZaigangrENShu').value.trim() 
-		@HuanSuanrENShu = 1 * t.find('#HuanSuanrENShu').value.trim()
-		@jixiaoFenshu = Math.max 0, 1 * t.find('#jixiaoFenshu').value.trim() #could be 0
-		@jIEyU = 1 * t.find('#jIEyU').value.trim()
-		@GuDingZIchan = Math.max 1, 1 * t.find('#GuDingZIchan').value.trim()
-		@CHAYiXiShu = Math.max 0.01, 1 * t.find('#CHAYiXiShu').value.trim()
-		Meteor.call "dept", this
-		Meteor.call "recalculate"
+		### 
+		# the following works but needs extra efforts to do input checks  
+		# console.log this, e.target.id
+		this["#{e.target.id}"] = e.target.value.trim()
+		###
+		
+		v = 1 * e.target.value.trim() 
+		this["#{e.target.id}"] = switch e.target.id
+			when "ZaigangrENShu" then v
+			when "HuanSuanrENShu" then v
+			when "jixiaoFenshu" then Math.max 0, v #could be 0
+			when "jIEyU" then v
+			when "GuDingZIchan" then Math.max 1, v
+			when "CHAYiXiShu" then Math.max 0.01, v
+			#else 0
+
+		Meteor.setTimeout ( () => 
+			Meteor.call "dept", this
+			Meteor.call "recalculate"), 1500 # wait until input finished
+			
 		
 

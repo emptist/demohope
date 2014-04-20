@@ -29,17 +29,23 @@
 					</tr>
 				</thead>
 				<tbody>
-					{{#each departments}}
-		
-						<tr>{{> department}}</tr>
-		
-					{{/each}}
+					{{> departments}}
+					
 				</tbody>
 			</table>
 		</div>
 	</div>
 </div>			
 	<!--button id="recalc" class="btn btn-info"> 完成 </button -->
+</template>
+
+
+<template name = "departments">
+	{{#each departments}}
+		<tr>
+			{{> department}}
+		</tr>
+	{{/each}}
 </template>
 
 
