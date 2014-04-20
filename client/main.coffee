@@ -32,23 +32,8 @@ Template.basicSettings.events
 		Meteor.call "sett", this
 		Meteor.call "recalculate"
 			
-###		
-Template.departments.events 
-	'keyup input': (e,t) ->
-		if e.keycode in [13, 9]
-			Session.set "updateDeps", true
-		else 
-			Session.set "updateDeps", false
-###
-		
 Template.department.events 
 	'keyup input': (e,t) ->
-		### 
-		# the following works but needs extra efforts to do input checks  
-		# console.log this, e.target.id
-		this["#{e.target.id}"] = e.target.value.trim()
-		###
-		
 		v = 1 * e.target.value.trim() 
 		this["#{e.target.id}"] = switch e.target.id
 			when "ZaigangrENShu" then v
@@ -59,7 +44,7 @@ Template.department.events
 			when "CHAYiXiShu" then Math.max 0.01, v
 			else e.target.value.trim() # could be department name now
 
-		Meteor.setTimeout ( () => 
+		Meteor.setTimeout ( => # must use => instead of -> here to keep this level this
 			Meteor.call "dept", this
 			Meteor.call "recalculate"), 1500 # wait until input finished
 			
