@@ -69,7 +69,7 @@ Meteor.startup ->
 				bao = Math.max 0, 0.5 * (YX + baodiYunXiao) 
 				Math.max YX, bao
 		
-	 	for deptname in ['A','B','C','D','E']
+	 	for deptname in [1..5]
 		 	insertInto share.Departments, new Department deptname 
 	
 	#console.log share.Departments.find().fetch()
