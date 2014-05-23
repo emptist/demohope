@@ -117,10 +117,11 @@ recalculate = -> if share.adminLoggedIn
 	# 计算科室计奖分值
 
 	for KEShi in getDepts()
-		YX = KEShi.jIEyU / KEShi.GuDingZIchan
-		bao = Math.max 0, 0.5 * (YX + baodiYunXiao) 
-		KEShi.YunXiaohANbaodi =  Math.max YX, bao
-		KEShi.ZONGhEFENzhI = KEShi.jixiaoFenshu * KEShi.HuanSuanrENShu * (Math.pow KEShi.YunXiaohANbaodi, 1/pown) * KEShi.CHAYiXiShu
+    YX = KEShi.jIEyU / KEShi.GuDingZIchan
+    bao = Math.max 0, 0.5 * (YX + baodiYunXiao) 
+    KEShi.YunXiaohANbaodi =  Math.max YX, bao
+    #if KEShi.LishiXiShu? then KEShi.CHAYiXiShu = KEShi.LishiXiShu
+    KEShi.ZONGhEFENzhI = KEShi.jixiaoFenshu * KEShi.HuanSuanrENShu * (Math.pow KEShi.YunXiaohANbaodi, 1/pown) * KEShi.CHAYiXiShu
 		dept KEShi
 		settings.ZONGhEFENzhI += KEShi.ZONGhEFENzhI
 	
@@ -131,10 +132,17 @@ recalculate = -> if share.adminLoggedIn
 	
 	#k 计算科室绩效分配, 用 科室领奖比例*总绩效分配池
 	for KEShi in getDepts()
-		KEShi.KEShiFENPeibiLi = KEShi.ZONGhEFENzhI / settings.ZONGhEFENzhI
-		KEShi.KEShijiangJIN = KEShi.KEShiFENPeibiLi * zongJiXiaoGONGZIchI * FENPeibiLi
-		KEShi.rENJUNjiangJIN = KEShi.KEShijiangJIN / KEShi.ZaigangrENShu
-		dept KEShi
+    KEShi.KEShiFENPeibiLi = KEShi.ZONGhEFENzhI / settings.ZONGhEFENzhI
+    KEShi.KEShijiangJIN = KEShi.KEShiFENPeibiLi * zongJiXiaoGONGZIchI * FENPeibiLi
+    KEShi.rENJUNjiangJIN = KEShi.KEShijiangJIN / KEShi.ZaigangrENShu
+    dept KEShi
+    
+    ###
+    KEShi.LishiFENPeibiLi = KEShi.LishijiangJIN / (zongJiXiaoGONGZIchI * FENPeibiLi)
+    KEShi.LishiXiShu = KEShi.CHAYiXiShu * KEShi.LishiFENPeibiLi / KEShi.KEShiFENPeibiLi
+    KEShi.CHAYiXiShu = KEShi.LishiXiShu
+    dept KEShi
+    ###
 
 		settings.KEShiFENPeibiLi += KEShi.KEShiFENPeibiLi
 		settings.KEShijiangJIN += KEShi.KEShijiangJIN

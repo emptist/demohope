@@ -43,7 +43,7 @@ Template.department.events
       when "GuDingZIchan" then Math.max 1, v
       when "CHAYiXiShu" then Math.max 0.01, v
       when "LiShiXiShu" then Math.max 0, v
-      when "LiShiJINoE" then Math.max 0, v
+      when "LiShijaingJIN" then Math.max 0, v
       else e.target.value.trim() # could be department name now
 
 		Meteor.setTimeout ( => # must use => instead of -> here to keep this level this
