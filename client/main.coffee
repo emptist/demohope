@@ -31,8 +31,15 @@ Template.basicSettings.events
 		@pown = Math.max 1, (Math.min 10, 1 * t.find('#zhiShu').value.trim())
 		Meteor.call "sett", this
 		Meteor.call "recalculate"
+
+Template.departments.events
+	'click button': (e,t) ->
+		console.log "addDept"
+		Meteor.call "newDept"	
+  	
 			
 Template.department.events 
+	
 	'keyup input': (e,t) ->
 		v = 1 * e.target.value.trim() 
 		this["#{e.target.id}"] = switch e.target.id
@@ -46,9 +53,6 @@ Template.department.events
 			when "LiShijaingJIN" then Math.max 0, v
 			else e.target.value.trim() # could be department name now
       
-      'click .addDept':(e,t) ->
-      		Meteor.call "addDept"
-
 		Meteor.setTimeout ( => # must use => instead of -> here to keep this level this
 			Meteor.call "dept", this
 			Meteor.call "recalculate"), 1500 # wait until input finished

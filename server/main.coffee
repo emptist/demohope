@@ -69,7 +69,7 @@ Meteor.startup ->
 				bao = Math.max 0, 0.5 * (YX + baodiYunXiao) 
 				Math.max YX, bao
 		
-	 	for deptname in [1..5]
+	 	for deptname in [1..3]
 		 	insertInto share.Departments, new Department deptname 
 			
 	#console.log share.Departments.find().fetch()
@@ -84,13 +84,23 @@ dept = (obj)->
 sett = (obj)->
 	upsertWithId share.Settings, obj
 
-addDept = -> 
-	insertInto share.Departments, new Department '' 
+getDepts = ->
+	share.Departments.find().fetch() 
+
+addDept = ->
+	class Department 
+		constructor: (@deptname) ->
+		GuDingZIchan: 100000
+		ZaigangrENShu: 10
+		HuanSuanrENShu: 10
+		jixiaoFenshu: 99
+		CHAYiXiShu: 1
+		jIEyU: 50000
+
+	insertInto share.Departments, new Department getDepts().length + 1
+	recalculate() 
 
 recalculate = -> if share.adminLoggedIn
-	getDepts = ->
-		share.Departments.find().fetch() 
-	
 	settings = share.Settings.findOne()
 	baodibiLi = settings.baodibiLi 
 	FENPeibiLi = settings.FENPeibiLi
@@ -160,6 +170,6 @@ recalculate = -> if share.adminLoggedIn
 Meteor.methods
 	sett: sett
 	dept: dept
-	addDept: addDept
+	newDept: addDept
 	#depId: (id, obj)-> upsertToId share.Departments, id, obj
 	recalculate: recalculate
