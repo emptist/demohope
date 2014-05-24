@@ -26,6 +26,7 @@
 <template name="demo">
 	{{> basicTable}}
 	{{> basicSettings}}
+	
 	<h2>演示方法</h2>
     	注意:如果其他人在同时使用, 则演示结果自动改变
 	<ol>
@@ -64,15 +65,17 @@
 
 <template name = "basicSettings">
 {{#each settings}}
-	<div>
-	<strong>绩效分配发放比例(>1.0无效)</strong>
-	<input class="input-mini" type="text" id="jiangJINbiLi" value= {{FENPeibiLi}}>
-	<strong>人均保底上限(>0.8无效)</strong>
-	<input class="input-mini" type="text" id="baodibiLi" value= {{baodibiLi}}>
-	<strong>变异修正指数(小于1无效)	</strong>
-	<input class="input-mini" type="text" id="zhiShu" value= {{pown}}>
-	<!--input type="checkbox" id="ZIchanfa" value={{ZIchanfa}}-->
-	<!-- button id="save" class="btn btn-info"> OK </button -->
+	<div class="basicSettings">
+		<ul class="inline">
+			<li><strong>绩效分配发放比例(>1.0无效)</strong></li>
+			<li><input class="input-mini" type="text" id="jiangJINbiLi" value= {{FENPeibiLi}}></li>
+			<li><strong>人均保底上限(>0.8无效)</strong></li>
+			<li><input class="input-mini" type="text" id="baodibiLi" value= {{baodibiLi}}></li>
+			<li><strong>变异修正指数(小于1无效)	</strong></li>
+			<li><input class="input-mini" type="text" id="zhiShu" value= {{pown}}></li>
+			<!--input type="checkbox" id="ZIchanfa" value={{ZIchanfa}}-->
+			<!-- button id="save" class="btn btn-info"> OK </button -->
+		</ul>
 	</div>
 {{/each}}
 </template>

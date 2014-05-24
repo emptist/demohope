@@ -12,6 +12,7 @@ removeFrom = (collection, id)->
 	if share.adminLoggedIn
 		collection.remove _id: id
 
+
 upsertTo = (collection, obj)-> 
 	# each obj should have an indx; return Mongodb object _id
 	if share.adminLoggedIn
@@ -100,6 +101,9 @@ addDept = ->
 	insertInto share.Departments, new Department getDepts().length + 1
 	recalculate() 
 
+removeDept = (id)->
+	removeFrom share.Departments, id
+
 recalculate = -> if share.adminLoggedIn
 	settings = share.Settings.findOne()
 	baodibiLi = settings.baodibiLi 
@@ -163,7 +167,7 @@ recalculate = -> if share.adminLoggedIn
 	sett settings
 
 	for KEShi in getDepts()
-		KEShi.LishiXiShu = (KEShi.CHAYiXiShu / settings.ZuixiaoCHAYiXiShu) * KEShi.tIAOzhengbiLi / Math.min 1, settings.ZuixiaotIAOzhengbiLi
+		KEShi.LishiXiShu = (KEShi.CHAYiXiShu / settings.ZuixiaoCHAYiXiShu) * KEShi.tIAOzhengbiLi / Math.min 0.999, settings.ZuixiaotIAOzhengbiLi
 		#KEShi.CHAYiXiShu = KEShi.LishiXiShu
 		dept KEShi
 
@@ -171,5 +175,7 @@ Meteor.methods
 	sett: sett
 	dept: dept
 	newDept: addDept
+	removeDept: (id)->
+		removeFrom share.Departments, id
 	#depId: (id, obj)-> upsertToId share.Departments, id, obj
 	recalculate: recalculate

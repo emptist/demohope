@@ -33,13 +33,13 @@ Template.basicSettings.events
 		Meteor.call "recalculate"
 
 Template.departments.events
-	'click button': (e,t) ->
-		console.log "addDept"
+	'click #addDept': (e,t) ->
 		Meteor.call "newDept"	
-  	
-			
+
 Template.department.events 
-	
+	'click #removeDept': (e,t) ->
+		Meteor.call "removeDept", this._id
+
 	'keyup input': (e,t) ->
 		v = 1 * e.target.value.trim() 
 		this["#{e.target.id}"] = switch e.target.id
