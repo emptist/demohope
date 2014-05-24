@@ -46,7 +46,7 @@ insertInto = (collection, obj)->
 Meteor.startup -> 
 	unless share.Settings.findOne()? # to initialize only once
 		class Settings 
-		 	constructor: (@indx)-> 
+		 	constructor: (@indx)->
 		 	baodibiLi: 0.5 
 		 	FENPeibiLi: 0.3 
 		 	pown: 1
@@ -71,11 +71,12 @@ Meteor.startup ->
 		
 	 	for deptname in [1..5]
 		 	insertInto share.Departments, new Department deptname 
-	
+			
 	#console.log share.Departments.find().fetch()
 	#console.log share.Settings.findOne()
 	recalculate()
 
+			
  
 dept = (obj)->
 	upsertWithId share.Departments, obj
@@ -83,6 +84,8 @@ dept = (obj)->
 sett = (obj)->
 	upsertWithId share.Settings, obj
 
+addDept = -> 
+	insertInto share.Departments, new Department '' 
 
 recalculate = -> if share.adminLoggedIn
 	getDepts = ->
@@ -124,34 +127,39 @@ recalculate = -> if share.adminLoggedIn
 		KEShi.ZONGhEFENzhI = KEShi.jixiaoFenshu * KEShi.HuanSuanrENShu * (Math.pow KEShi.YunXiaohANbaodi, 1/pown) * KEShi.CHAYiXiShu
 		dept KEShi
 		settings.ZONGhEFENzhI += KEShi.ZONGhEFENzhI
-	
+	sett settings
 	
 	#i 计算科室计奖分值小计
 		
 	#j 计算科室领奖比例, 用科室计奖分值/科室计奖分值小计
 	
 	#k 计算科室绩效分配, 用 科室领奖比例*总绩效分配池
+	settings.ZuixiaoCHAYiXiShu = 100
+	settings.ZuixiaotIAOzhengbiLi = 100
 	for KEShi in getDepts()
 		KEShi.KEShiFENPeibiLi = KEShi.ZONGhEFENzhI / settings.ZONGhEFENzhI
+		KEShi.LishiFENPeibiLi = KEShi.LishijiangJIN / (zongJiXiaoGONGZIchI * FENPeibiLi)
+		KEShi.tIAOzhengbiLi = KEShi.LishiFENPeibiLi / KEShi.KEShiFENPeibiLi
 		KEShi.KEShijiangJIN = KEShi.KEShiFENPeibiLi * zongJiXiaoGONGZIchI * FENPeibiLi
 		KEShi.rENJUNjiangJIN = KEShi.KEShijiangJIN / KEShi.ZaigangrENShu
 		dept KEShi
 
-		###
-		KEShi.LishiFENPeibiLi = KEShi.LishijiangJIN / (zongJiXiaoGONGZIchI * FENPeibiLi)
-		KEShi.LishiXiShu = KEShi.CHAYiXiShu * KEShi.LishiFENPeibiLi / KEShi.KEShiFENPeibiLi
-		KEShi.CHAYiXiShu = KEShi.LishiXiShu
-		dept KEShi
-		###
-
 		settings.KEShiFENPeibiLi += KEShi.KEShiFENPeibiLi
 		settings.KEShijiangJIN += KEShi.KEShijiangJIN
-		
+		settings.ZuixiaoCHAYiXiShu = Math.min KEShi.CHAYiXiShu, settings.ZuixiaoCHAYiXiShu
+		settings.ZuixiaotIAOzhengbiLi = Math.min KEShi.tIAOzhengbiLi, settings.ZuixiaotIAOzhengbiLi
+
 	settings.rENJUNjiangJIN = settings.KEShijiangJIN / ZaigangrENShu
 	sett settings
+
+	for KEShi in getDepts()
+		KEShi.LishiXiShu = (KEShi.CHAYiXiShu / settings.ZuixiaoCHAYiXiShu) * KEShi.tIAOzhengbiLi / Math.min 1, settings.ZuixiaotIAOzhengbiLi
+		#KEShi.CHAYiXiShu = KEShi.LishiXiShu
+		dept KEShi
 
 Meteor.methods
 	sett: sett
 	dept: dept
+	addDept: addDept
 	#depId: (id, obj)-> upsertToId share.Departments, id, obj
 	recalculate: recalculate
