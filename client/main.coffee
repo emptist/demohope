@@ -36,15 +36,15 @@ Template.department.events
 	'keyup input': (e,t) ->
 		v = 1 * e.target.value.trim() 
 		this["#{e.target.id}"] = switch e.target.id
-      when "ZaigangrENShu" then v
-      when "HuanSuanrENShu" then v
-      when "jixiaoFenshu" then Math.max 0, v #could be 0
-      when "jIEyU" then v
-      when "GuDingZIchan" then Math.max 1, v
-      when "CHAYiXiShu" then Math.max 0.01, v
-      when "LiShiXiShu" then Math.max 0, v
-      when "LiShiJINoE" then Math.max 
-      else e.target.value.trim() # could be department name now
+			when "ZaigangrENShu" then v
+			when "HuanSuanrENShu" then v
+			when "jixiaoFenshu" then Math.max 0, v #could be 0
+			when "jIEyU" then v
+			when "GuDingZIchan" then Math.max 1, v
+			when "CHAYiXiShu" then Math.max 0.01, v
+			when "LiShiXiShu" then Math.max 0, v
+			when "LiShiJINoE" then Math.max 
+			else e.target.value.trim() # could be department name now
 
 		Meteor.setTimeout ( => # must use => instead of -> here to keep this level this
 			Meteor.call "dept", this
