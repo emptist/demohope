@@ -49,10 +49,17 @@ Template.department.events
 			when "jIEyU" then v
 			when "GuDingZIchan" then Math.max 1, v
 			when "CHAYiXiShu" then Math.max 0.01, v
+<<<<<<< HEAD
 			when "LishiXiShu" then Math.max 0, v
 			when "LishijiangJIN" then Math.max 0, v
 			else e.target.value.trim() # could be department name now
       
+=======
+			when "LiShiXiShu" then Math.max 0, v
+			when "LiShiJINoE" then Math.max 
+			else e.target.value.trim() # could be department name now
+
+>>>>>>> e6402cebd940621fe23290536f88ce8246af9683
 		Meteor.setTimeout ( => # must use => instead of -> here to keep this level this
 			Meteor.call "dept", this
 			Meteor.call "recalculate"), 1500 # wait until input finished
