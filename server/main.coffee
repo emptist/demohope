@@ -50,6 +50,7 @@ Meteor.startup ->
 		 	constructor: (@indx)->
 		 	baodibiLi: 0.5 
 		 	FENPeibiLi: 0.3 
+		 	LishiFENPeibiLi: 0
 		 	pown: 1
 
 		insertInto share.Settings, new Settings 1 
@@ -115,22 +116,27 @@ recalculate = -> if share.adminLoggedIn
 	settings.KEShiFENPeibiLi = 0
 	settings.KEShijiangJIN = 0
 	settings.rENJUNjiangJIN = 0
-	
+	settings.LishiFENPeibiLi = 0
+
 	jy = 0
 	zc = 0
 	ZaigangrENShu = 0
+	zongLishijiangJIN = 0
 	for KEShi in getDepts()
 		jy += KEShi.jIEyU
 		zc += KEShi.GuDingZIchan
 		ZaigangrENShu += KEShi.ZaigangrENShu
+		zongLishijiangJIN += KEShi.LishijiangJIN
 	
-	zongGudingZIchan = Math.max 0, zc
+	zongGuDingZIchan = Math.max 0, zc
 	zongjIEyU = Math.max 0, jy
 	zongJiXiaoGONGZIchI = zongjIEyU
 	rENJUNjiangJIN = zongJiXiaoGONGZIchI / ZaigangrENShu
-	
+	settings.LishiFENPeibiLi = zongLishijiangJIN / zongJiXiaoGONGZIchI
+	sett settings
+
 	# 保底運營效率 保底比例 * 總的資產運營效率
-	baodiYunXiao = baodibiLi * zongjIEyU / zongGudingZIchan 
+	baodiYunXiao = baodibiLi * zongjIEyU / zongGuDingZIchan 
 	# 计算科室计奖分值
 
 	for KEShi in getDepts()
@@ -166,9 +172,14 @@ recalculate = -> if share.adminLoggedIn
 	settings.rENJUNjiangJIN = settings.KEShijiangJIN / ZaigangrENShu
 	sett settings
 
+	ZuixiaoLishiXiShu = 100
 	for KEShi in getDepts()
-		KEShi.LishiXiShu = (KEShi.CHAYiXiShu / settings.ZuixiaoCHAYiXiShu) * KEShi.tIAOzhengbiLi / Math.min 0.999, settings.ZuixiaotIAOzhengbiLi
-		#KEShi.CHAYiXiShu = KEShi.LishiXiShu
+		KEShi.LishiXiShu = (KEShi.CHAYiXiShu / settings.ZuixiaoCHAYiXiShu) * KEShi.tIAOzhengbiLi / Math.min 0.99, settings.ZuixiaotIAOzhengbiLi
+		ZuixiaoLishiXiShu = Math.min KEShi.LishiXiShu, ZuixiaoLishiXiShu
+		dept KEShi
+	
+	for KEShi in getDepts()
+		KEShi.LishiXiShu = KEShi.LishiXiShu / ZuixiaoLishiXiShu
 		dept KEShi
 
 Meteor.methods
