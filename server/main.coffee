@@ -51,7 +51,7 @@ Meteor.startup ->
 		 	baodibiLi: 0.5 
 		 	FENPeibiLi: 0.3 
 		 	LishiFENPeibiLi: 0
-		 	pown: 1
+		 	pown: 2
 
 		insertInto share.Settings, new Settings 1 
 
