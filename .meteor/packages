@@ -5,7 +5,7 @@
 
 standard-app-packages
 coffeescript
-bootstrap
 insecure
 autopublish
 spiderable
+bootstrap-3
